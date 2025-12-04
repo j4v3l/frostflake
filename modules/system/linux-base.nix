@@ -17,6 +17,7 @@
   networking.networkmanager.enable = true;
 
   hardware.graphics.enable = true;
+  hardware.graphics.enable32Bit = lib.mkDefault true;
 
   services = {
     fwupd.enable = true;

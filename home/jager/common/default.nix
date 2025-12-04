@@ -8,8 +8,84 @@
     if isDarwin
     then "/Users/jager"
     else "/home/jager";
-  flakePath = "~/Documents/Codes/frostflake";
+  envFlakePath = builtins.getEnv "FLAKE_PATH";
+  candidateFlakePaths =
+    lib.optional (envFlakePath != "") envFlakePath
+    ++ map (rel: "${homeDir}/${rel}") [
+      "Documents/Codes/frostflake"
+      "Documents/frostflake"
+      "Codes/frostflake"
+      "dev/frostflake"
+      "frostflake"
+    ];
+  flakePath =
+    lib.findFirst (p: builtins.pathExists p)
+    (lib.head candidateFlakePaths)
+    candidateFlakePaths;
   treeAlias = "eza --tree --icons=always";
+  fastfetchModules = [
+    "title"
+    "separator"
+    {
+      type = "os";
+      key = "Distro";
+    }
+    {
+      type = "host";
+      key = "Machine";
+    }
+    {
+      type = "kernel";
+      key = "Kernel";
+    }
+    {
+      type = "uptime";
+      key = "Uptime";
+    }
+    {
+      type = "packages";
+      key = "Packages";
+    }
+    {
+      type = "shell";
+      key = "Shell";
+    }
+    "break"
+    {
+      type = "cpu";
+      key = "CPU";
+    }
+    {
+      type = "gpu";
+      key = "GPU";
+    }
+    {
+      type = "memory";
+      key = "Memory";
+    }
+    {
+      type = "swap";
+      key = "Swap";
+    }
+    {
+      type = "disk";
+      key = "Disk";
+    }
+    "break"
+    {
+      type = "localip";
+      key = "LAN";
+    }
+    {
+      type = "battery";
+      key = "Battery";
+    }
+    {
+      type = "locale";
+      key = "Locale";
+    }
+    "colors"
+  ];
 in {
   home = {
     username = "jager";
@@ -62,6 +138,26 @@ in {
       };
     };
     starship.enable = true;
+    fastfetch = {
+      enable = true;
+      settings = {
+        "$schema" = "https://github.com/fastfetch-cli/fastfetch/raw/master/doc/json_schema.json";
+        logo = {
+          type = "small";
+          source = "nixos";
+          padding = {
+            top = 1;
+            bottom = 1;
+            right = 2;
+          };
+        };
+        display = {
+          separator = " :: ";
+          color = "cyan";
+        };
+        modules = fastfetchModules;
+      };
+    };
     zsh = {
       enable = true;
       enableCompletion = true;
