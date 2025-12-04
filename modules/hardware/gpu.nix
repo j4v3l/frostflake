@@ -46,9 +46,5 @@ in {
     (mkIf isVm {
       services.xserver.videoDrivers = vmDrivers;
     })
-
-    (mkIf (!isNone) {
-      hardware.graphics.extraPackages32 = config.hardware.graphics.extraPackages or [];
-    })
   ];
 }
