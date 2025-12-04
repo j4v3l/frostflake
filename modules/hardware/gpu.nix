@@ -9,7 +9,7 @@
   isIntel = cfg.profile == "intel";
   isVm = cfg.profile == "vm";
   isNone = cfg.profile == "none";
-  nvidiaPkg = config.boot.kernelPackages.nvidiaPackages.beta;
+  nvidiaPkg = config.boot.kernelPackages.nvidiaPackages.latest;
   intelPackages = with pkgs; [
     intel-media-driver
     intel-vaapi-driver
@@ -32,7 +32,7 @@ in {
         modesetting.enable = true;
         nvidiaSettings = true;
         package = nvidiaPkg;
-        open = false;
+        open = mkDefault true;
         powerManagement.enable = mkDefault true;
       };
       hardware.graphics.extraPackages = with pkgs; [nvidia-vaapi-driver];
