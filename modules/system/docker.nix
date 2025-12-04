@@ -7,6 +7,8 @@
 with lib; let
   cfg = config.services.dockerManager;
   nvidiaToolkit = config.hardware.nvidia-container-toolkit;
+  nvidiaToolkitPackage = nvidiaToolkit.package or pkgs.nvidia-container-toolkit;
+  nvidiaRuntimePackage = nvidiaToolkitPackage.tools or nvidiaToolkitPackage;
   dockerPackages = with pkgs; [docker docker-compose lazydocker];
   usersCfg = config.users.users;
   defaultUsers = builtins.attrNames (filterAttrs (_: user: user.isNormalUser or false) usersCfg);
@@ -57,7 +59,7 @@ in {
         daemon.settings = mkMerge [
           (mkIf nvidiaToolkit.enable {
             "default-runtime" = mkDefault "nvidia";
-            runtimes.nvidia.path = lib.getExe' nvidiaToolkit.package "nvidia-container-runtime";
+            runtimes.nvidia.path = lib.getExe' nvidiaRuntimePackage "nvidia-container-runtime";
           })
           cfg.daemonSettings
         ];
