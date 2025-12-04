@@ -1,0 +1,14 @@
+repos:
+  - repo: https://github.com/cachix/pre-commit-hooks.nix
+    rev: v0.10.0
+    hooks:
+      - id: alejandra
+      - id: statix
+      - id: deadnix
+  - repo: local
+    hooks:
+      - id: nix-flake-check
+        name: nix flake check
+        entry: nix flake check
+        language: system
+        pass_filenames: false

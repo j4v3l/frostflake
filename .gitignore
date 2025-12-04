@@ -1,0 +1,5 @@
+.direnv/*
+!.direnv/.gitignore
+result
+.nix-result
+*.swp
