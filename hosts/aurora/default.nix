@@ -27,6 +27,15 @@
     ollama.acceleration = lib.mkDefault false;
     tlp.enable = true;
     power-profiles-daemon.enable = false;
+    fprintd.enable = true;
+  };
+
+  security.pam = {
+    services = {
+      sudo.fprintAuth = true;
+      login.fprintAuth = lib.mkForce true;
+      "gdm-password".fprintAuth = true;
+    };
   };
 
   home-manager = {
