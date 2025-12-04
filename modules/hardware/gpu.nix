@@ -8,7 +8,6 @@
   isNvidia = cfg.profile == "nvidia";
   isIntel = cfg.profile == "intel";
   isVm = cfg.profile == "vm";
-  isNone = cfg.profile == "none";
   nvidiaPkg = config.boot.kernelPackages.nvidiaPackages.latest;
   intelPackages = with pkgs; [
     intel-media-driver
