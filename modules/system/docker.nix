@@ -60,10 +60,7 @@ in {
 
     environment.systemPackages = cfg.packages;
 
-    users.groups.docker.members = let
-      existing = config.users.groups.docker.members or [];
-    in
-      unique (targetUsers ++ existing);
+    users.groups.docker.members = mkAfter targetUsers;
 
     systemd.services.docker.after = ["network-online.target"];
     systemd.services.docker.wants = ["network-online.target"];

@@ -50,6 +50,8 @@
     nix-direnv.enable = true;
   };
 
+  services.dockerManager.enable = lib.mkDefault true;
+
   environment.systemPackages = with pkgs; [
     bat
     brave

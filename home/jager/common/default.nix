@@ -88,9 +88,9 @@ in {
           ncheck = "statix check . && deadnix";
         }
         (lib.mkIf (!isDarwin) {
-          nixup = "sudo nixos-rebuild switch --flake ${flakePath}#$(hostname)";
-          nixboot = "sudo nixos-rebuild boot --flake ${flakePath}#$(hostname)";
-          nixdry = "nixos-rebuild dry-activate --flake ${flakePath}#$(hostname)";
+          nixup = "sudo nixos-rebuild switch --flake ${flakePath}#\$(hostname)";
+          nixboot = "sudo nixos-rebuild boot --flake ${flakePath}#\$(hostname)";
+          nixdry = "nixos-rebuild dry-activate --flake ${flakePath}#\$(hostname)";
           vmls = "virsh list --all";
           vmstart = "virsh start";
           vmstop = "virsh shutdown";
