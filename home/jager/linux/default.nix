@@ -1,6 +1,6 @@
 {lib, ...}: let
   frostflakeProfile = "c2c8a1f6-7b7f-42d0-8464-55b91dd6276a";
-  frostflakeProfileKey = "org/gnome/terminal/legacy/profiles:/:${frostflakeProfile}";
+  frostflakeProfileKey = "org/gnome/terminal/legacy/profiles:/:${frostflakeProfile}/";
   catppuccinPalette = [
     "#1E1E2E"
     "#F38BA8"
