@@ -6,6 +6,7 @@
 }:
 with lib; let
   cfg = config.services.dockerManager;
+  nvidiaToolkit = config.hardware.nvidia-container-toolkit;
   dockerPackages = with pkgs; [docker docker-compose lazydocker];
   usersCfg = config.users.users;
   defaultUsers = builtins.attrNames (filterAttrs (_: user: user.isNormalUser or false) usersCfg);
@@ -53,7 +54,13 @@ in {
           enable = true;
           setSocketVariable = true;
         };
-        daemon.settings = cfg.daemonSettings;
+        daemon.settings = mkMerge [
+          (mkIf nvidiaToolkit.enable {
+            "default-runtime" = mkDefault "nvidia";
+            runtimes.nvidia.path = "${nvidiaToolkit.package}/bin/nvidia-container-runtime";
+          })
+          cfg.daemonSettings
+        ];
       };
       "oci-containers".backend = mkDefault "docker";
     };
