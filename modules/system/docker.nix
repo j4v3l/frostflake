@@ -57,7 +57,7 @@ in {
         daemon.settings = mkMerge [
           (mkIf nvidiaToolkit.enable {
             "default-runtime" = mkDefault "nvidia";
-            runtimes.nvidia.path = "${nvidiaToolkit.package}/bin/nvidia-container-runtime";
+            runtimes.nvidia.path = lib.getExe' nvidiaToolkit.package "nvidia-container-runtime";
           })
           cfg.daemonSettings
         ];

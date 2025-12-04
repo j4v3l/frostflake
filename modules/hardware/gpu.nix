@@ -27,19 +27,25 @@ in {
   config = mkMerge [
     (mkIf isNvidia {
       services.xserver.videoDrivers = ["nvidia"];
-      hardware.nvidia = {
-        modesetting.enable = true;
-        nvidiaSettings = true;
-        package = nvidiaPkg;
-        open = mkDefault true;
-        powerManagement.enable = mkDefault true;
+      hardware = {
+        nvidia = {
+          modesetting.enable = true;
+          nvidiaSettings = true;
+          package = nvidiaPkg;
+          open = mkDefault true;
+          powerManagement.enable = mkDefault true;
+        };
+        graphics.extraPackages = with pkgs; [nvidia-vaapi-driver];
+        nvidia-container-toolkit.enable = mkDefault true;
       };
-      hardware.graphics.extraPackages = with pkgs; [nvidia-vaapi-driver];
+      environment.systemPackages = [pkgs.nvidia-container-toolkit];
     })
 
     (mkIf isIntel {
       services.xserver.videoDrivers = ["intel" "modesetting"];
-      hardware.graphics.extraPackages = intelPackages;
+      hardware = {
+        graphics.extraPackages = intelPackages;
+      };
     })
 
     (mkIf isVm {
