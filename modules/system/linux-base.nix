@@ -50,23 +50,14 @@
     nix-direnv.enable = true;
   };
 
-  virtualisation.docker = {
-    enable = true;
-    enableOnBoot = true;
-  };
-
   environment.systemPackages = with pkgs; [
     bat
     brave
     code-cursor
-    docker
-    docker-compose
     direnv
     eza
     git
     glances
-    lazydocker
-    lazygit
     lmstudio
     nix-direnv
     ollama
@@ -77,6 +68,7 @@
     vim
     vscode
     wget
+    lazygit
   ];
 
   fonts.packages = with pkgs; [

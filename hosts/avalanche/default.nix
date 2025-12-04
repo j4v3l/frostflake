@@ -7,6 +7,7 @@
     ../../modules/system/linux-base.nix
     ../../modules/system/user-jager.nix
     ../../modules/system/gnome.nix
+    ../../modules/system/docker.nix
     ../../modules/system/vms.nix
     ../../modules/hardware/gpu.nix
     ./hardware-configuration.nix
@@ -18,6 +19,7 @@
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
 
+  hardware.nvidia-container-toolkit.enable = true;
   hardware.gpu.profile = "nvidia";
   services.ollama.acceleration = lib.mkDefault "cuda";
 
@@ -62,5 +64,19 @@
         ];
       };
     };
+  };
+
+  virtualisation.oci-containers.containers.gpu-hot = {
+    autoStart = true;
+    image = "ghcr.io/psalias2006/gpu-hot:latest";
+    ports = ["1312:1312"];
+    environment = {
+      NODE_NAME = "Avalanche";
+    };
+    extraOptions = [
+      "--gpus=all"
+      "--init"
+      "--pid=host"
+    ];
   };
 }
