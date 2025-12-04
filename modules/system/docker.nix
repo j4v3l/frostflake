@@ -49,6 +49,7 @@ in {
       docker = {
         enable = true;
         enableOnBoot = true;
+        enableNvidia = mkDefault config.hardware.nvidia-container-toolkit.enable;
         rootless = mkIf cfg.rootless {
           enable = true;
           setSocketVariable = true;
