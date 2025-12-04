@@ -4,7 +4,7 @@
     description = "jager";
     home = "/home/jager";
     shell = pkgs.zsh;
-    extraGroups = ["wheel" "networkmanager" "video" "audio" "docker"];
+    extraGroups = ["wheel" "networkmanager" "video" "audio" "docker" "libvirtd"];
   };
 
   security.sudo = {

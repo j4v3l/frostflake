@@ -6,7 +6,7 @@ Multi-host Nix flake for the Avalanche (desktop), Aurora (laptop), Iceberg (VM),
 
 - `flake.nix` – exposes NixOS, nix-darwin, dev shells, and formatters.
 - `hosts/` – per-host entry points. Linux machines share the same base + GNOME modules, Glacier imports the nix-darwin stack.
-- `modules/` – reusable building blocks (`linux-base`, `gnome`, the GPU selector, and the user module).
+- `modules/` – reusable building blocks (`linux-base`, `gnome`, the GPU selector, the VM manager, and the user module).
 - `home/` – Home Manager profiles (common + Linux/Darwin overlays) that supply zsh, starship, aliases, etc.
 - `.envrc` / `.direnv/` – enables `direnv` (`use flake`) for automatic shells.
 - `.pre-commit-config.yaml` – runs `alejandra`, `statix`, `deadnix`, and `nix flake check` before each commit.
@@ -60,6 +60,31 @@ For Glacier, nix-darwin handles CLI tooling, while GUI apps (Brave, Cursor, LM S
 `modules/hardware/gpu.nix` exposes `hardware.gpu.profile = "nvidia" | "intel" | "vm" | "none"`. Each host imports the module and sets the profile, so swapping drivers is as simple as changing that string.
 
 Ollama’s acceleration is configured per host (`services.ollama.acceleration`). Avalanche uses `"cuda"` to match the RTX 5070 Ti; other machines leave it `false` for CPU-only inference. There is no separate `ollama-cuda` package—just flip the acceleration mode if the GPU supports CUDA/ROCm/Vulkan.
+
+## Declarative libvirt VMs
+
+`modules/system/vms.nix` enables a libvirt-backed VM manager that both Avalanche and Aurora import. Turn it on per host via:
+
+```nix
+services.vmManager = {
+	enable = true;
+	virtualMachines = {
+		"win11-dev" = {
+			description = "Windows preview box";
+			memoryMiB = 8192;
+			vcpus = 4;
+			autostart = false;
+			disks = [
+				{ path = "/var/lib/libvirt/images/win11.qcow2"; format = "qcow2"; }
+				{ path = "/var/lib/libvirt/iso/Win11.iso"; device = "cdrom"; format = "raw"; }
+			];
+			networks = [{ source = "default"; }];
+		};
+	};
+};
+```
+
+Each VM can be toggled individually with `enable = true/false`, made to autostart, and configured for UEFI (default), TPM2, SPICE graphics, and multiple disks or NICs. The module drops the domain XML in `/etc/libvirt/qemu`, copies OVMF vars via tmpfiles, installs `virt-manager`/`virt-viewer`, and adds `jager` to the `libvirtd` group so the user can manage guests. Create or resize disk images with `qemu-img`, then start/stop guests via `virt-manager` or `virsh start <name>`.
 
 ## Home environment highlights
 
