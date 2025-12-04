@@ -38,7 +38,12 @@ in {
         graphics.extraPackages = with pkgs; [nvidia-vaapi-driver];
         nvidia-container-toolkit.enable = mkDefault true;
       };
-      environment.systemPackages = with pkgs; [nvidia-container-toolkit];
+      environment.systemPackages = with pkgs; [
+        nvidia-container-toolkit
+        (writeShellScriptBin "nvidia-container-runtime" ''
+          exec ${nvidia-container-toolkit}/bin/nvidia-ctk runtime "$@"
+        '')
+      ];
     })
 
     (mkIf isIntel {
