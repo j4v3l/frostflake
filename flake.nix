@@ -14,6 +14,10 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    nixos-hardware = {
+      url = "github:NixOS/nixos-hardware";
+    };
+
     pre-commit-hooks = {
       url = "github:cachix/pre-commit-hooks.nix";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -83,6 +87,12 @@
         system = "x86_64-linux";
         specialArgs = {inherit inputs user;};
         modules = [./hosts/iceberg/default.nix];
+      };
+
+      Hailstone = lib.nixosSystem {
+        system = "aarch64-linux";
+        specialArgs = {inherit inputs user;};
+        modules = [./hosts/hailstone/default.nix];
       };
     };
 

@@ -17,7 +17,7 @@
   networking.networkmanager.enable = true;
 
   hardware.graphics.enable = true;
-  hardware.graphics.enable32Bit = lib.mkDefault true;
+  hardware.graphics.enable32Bit = lib.mkDefault pkgs.stdenv.hostPlatform.isx86_64;
 
   services = {
     fwupd.enable = true;
@@ -42,7 +42,7 @@
       alsa.support32Bit = true;
       pulse.enable = true;
     };
-    ollama.enable = true;
+    ollama.enable = lib.mkDefault pkgs.stdenv.hostPlatform.isx86_64;
   };
 
   programs.zsh.enable = true;
@@ -53,26 +53,29 @@
 
   services.dockerManager.enable = lib.mkDefault true;
 
-  environment.systemPackages = with pkgs; [
-    bat
-    brave
-    code-cursor
-    direnv
-    eza
-    git
-    glances
-    lmstudio
-    nix-direnv
-    ollama
-    pciutils
-    ripgrep
-    tree
-    unzip
-    vim
-    vscode
-    wget
-    lazygit
-  ];
+  environment.systemPackages = with pkgs;
+    [
+      bat
+      direnv
+      eza
+      git
+      glances
+      nix-direnv
+      pciutils
+      ripgrep
+      tree
+      unzip
+      vim
+      wget
+      lazygit
+    ]
+    ++ lib.optionals pkgs.stdenv.hostPlatform.isx86_64 [
+      brave
+      code-cursor
+      lmstudio
+      ollama
+      vscode
+    ];
 
   fonts.packages = with pkgs; [
     nerd-fonts.fira-code

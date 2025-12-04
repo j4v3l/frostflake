@@ -4,6 +4,7 @@
   ...
 }: let
   inherit (pkgs.stdenv) isDarwin;
+  isX86Linux = (!isDarwin) && pkgs.stdenv.hostPlatform.isx86_64;
   homeDir =
     if isDarwin
     then "/Users/jager"
@@ -105,7 +106,7 @@ in {
         statix
         tree
       ]
-      ++ lib.optionals (!isDarwin) [
+      ++ lib.optionals isX86Linux [
         brave
         code-cursor
         gnome-terminal

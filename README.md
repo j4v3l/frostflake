@@ -13,12 +13,13 @@ Multi-host Nix flake for the Avalanche (desktop), Aurora (laptop), Iceberg (VM),
 
 ## Host matrix
 
-| Host      | Platform          | GPU profile | Notes |
-|-----------|-------------------|-------------|-------|
-| Avalanche | x86_64 desktop    | `nvidia`    | RTX 5070 Ti + CUDA acceleration for Ollama. |
-| Aurora    | x86_64 laptop     | `intel`     | Laptop power tweaks (`tlp`, disabled `power-profiles-daemon`). |
-| Iceberg   | x86_64 VM         | `vm`        | Guest additions (`qemuGuest`, `spice-vdagentd`). |
-| Glacier   | aarch64-darwin    | —           | nix-darwin + Homebrew apps (Brave, Cursor, LM Studio, Ollama, VS Code). |
+| Host      | Platform                 | GPU profile | Notes |
+|-----------|--------------------------|-------------|-------|
+| Avalanche | x86_64 desktop           | `nvidia`    | RTX 5070 Ti + CUDA acceleration for Ollama. |
+| Aurora    | x86_64 laptop            | `intel`     | Laptop power tweaks (`tlp`, disabled `power-profiles-daemon`). |
+| Iceberg   | x86_64 VM                | `vm`        | Guest additions (`qemuGuest`, `spice-vdagentd`). |
+| Hailstone | aarch64 Raspberry Pi SBC | `none`      | Headless Pi node for lightweight Docker services + homelab sensors. |
+| Glacier   | aarch64-darwin           | —           | nix-darwin + Homebrew apps (Brave, Cursor, LM Studio, Ollama, VS Code). |
 
 Linux hosts mount `/` via `fileSystems."/"` (currently pointing at `/dev/disk/by-label/nixos`). Update the device/fsType per machine before rebuilding.
 
