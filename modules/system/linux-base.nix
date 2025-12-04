@@ -19,6 +19,13 @@
   hardware.graphics.enable = true;
   hardware.graphics.enable32Bit = lib.mkDefault pkgs.stdenv.hostPlatform.isx86_64;
 
+  security.rtkit.enable = true;
+
+  services.udev.extraRules = ''
+    # Stable alias for the Maono PD400X USB audio interface
+    ACTION=="add", SUBSYSTEM=="sound", ATTRS{idVendor}=="352f", ATTRS{idProduct}=="0100", ATTRS{product}=="PD400X Podcast Microphone", SYMLINK+="snd/by-id/PD400X"
+  '';
+
   services = {
     fwupd.enable = true;
     openssh = {
@@ -41,6 +48,24 @@
       alsa.enable = true;
       alsa.support32Bit = true;
       pulse.enable = true;
+      jack.enable = true;
+      extraConfig = {
+        pipewire."context.properties" = {
+          default.clock.rate = 48000;
+          default.clock.allowed-rates = [48000 96000];
+          default.clock.quantum = 256;
+          default.clock.min-quantum = 32;
+          default.clock.max-quantum = 2048;
+          resample.quality = 10;
+        };
+        "pipewire-pulse"."context.properties" = {
+          "resample.quality" = 10;
+        };
+        "pipewire-pulse"."stream.properties" = {
+          "node.latency" = "64/48000";
+          "resample.quality" = 10;
+        };
+      };
     };
     ollama.enable = lib.mkDefault pkgs.stdenv.hostPlatform.isx86_64;
   };

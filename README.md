@@ -93,6 +93,12 @@ Each VM can be toggled individually with `enable = true/false`, made to autostar
 - Aliases for modern dir tooling (`eza`, `tree`), Git helpers, and NixOS workflows (`nixup`, `nixboot`, `nixdry`, `nclean`, etc.).
 - Common CLI packages: alejandra, direnv, eza, fd, ripgrep, glances, tree, starship, neovim, statix, deadnix. Linux adds GUI apps (Brave, Cursor, LM Studio, Ollama, VS Code, GNOME Terminal); macOS installs the GUI set via Homebrew.
 
+## PD400X microphone
+
+- The shared Linux base module now enables `rtkit` and forces PipeWire to run at 48 kHz with a high quality resampler and 64/48000 latency, which matches the PD400X spec and prevents the crunchy audio the mic produced at 44.1 kHz.
+- A dedicated udev rule publishes `/dev/snd/by-id/PD400X`, so commands like `udevadm info --query=all --name=/dev/snd/by-id/PD400X` and `pw-cli list-objects Device | rg -n -A6 -B2 -i PD400X` always work on Avalanche and Aurora.
+- To troubleshoot: (1) run `pw-top` and confirm the PD400X input stays locked at 48 kHz, (2) open `pavucontrol` or the GNOME sound panel to adjust mic gain (0–42 dB is exposed via the USB interface), and (3) double-check that no other USB hubs are dropping the device to USB 1.1 speeds.
+
 ## Customization checklist
 
 - **Root disks** – update `fileSystems."/"` in each host to reflect the real device/UUID.
