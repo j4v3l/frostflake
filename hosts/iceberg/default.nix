@@ -7,6 +7,7 @@
     ../../modules/system/linux-base.nix
     ../../modules/system/user-jager.nix
     ../../modules/system/gnome.nix
+    ../../modules/system/docker.nix
     ../../modules/hardware/gpu.nix
     inputs.home-manager.nixosModules.home-manager
   ];
