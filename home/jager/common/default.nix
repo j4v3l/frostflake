@@ -260,17 +260,6 @@ in {
     };
 
     tmux = let
-      palette = {
-        bg1 = "#336699";
-        bg2 = "#2f5783";
-        bg3 = "#294262";
-        bg4 = "#232f44";
-        bg5 = "#1d2230";
-        blue = "#769ff0";
-        gray = "#999999";
-        red = "#eb4d28";
-        white = "#f2f2f2";
-      };
       statsCommand = "${tmuxMetricsScript}/bin/tmux-frostflake-stats";
     in {
       enable = true;
@@ -290,23 +279,10 @@ in {
         set -g renumber-windows on
         set -g status-interval 1
         set -g status-justify centre
-        set -g message-style "bg=${palette.bg1} fg=${palette.white}"
-        set -g message-command-style "bg=${palette.bg2} fg=${palette.white}"
-        setw -g clock-mode-colour ${palette.blue}
-        set -g pane-border-style "fg=${palette.bg3}"
-        set -g pane-active-border-style "fg=${palette.blue}"
-        set -g display-panes-colour ${palette.bg3}
-        set -g display-panes-active-colour ${palette.blue}
-        set -g status-style "bg=${palette.bg5} fg=${palette.white}"
-        set -g status-left-length 40
-        set -g status-right-length 80
-        set -g window-status-separator " "
-        setw -g window-status-style "bg=${palette.bg5} fg=${palette.gray}"
-        setw -g window-status-current-style "bg=${palette.bg4} fg=${palette.white}"
-        setw -g window-status-format " #I · #W "
-        setw -g window-status-current-format " #I · #W "
-        set -g status-left "#[fg=${palette.white},bg=${palette.bg2}]   #S #[fg=${palette.bg2},bg=${palette.bg5}]"
-        set -g status-right "#[fg=${palette.gray},bg=${palette.bg5}]#{?client_prefix,⌘ ,} #[fg=${palette.white},bg=${palette.bg5}]#(${statsCommand}) #[fg=${palette.gray},bg=${palette.bg5}]· %Y-%m-%d · %H:%M"
+        setw -g window-status-format " #I:#W "
+        setw -g window-status-current-format " #I:#W* "
+        set -g status-left "  #S "
+        set -g status-right "#{?client_prefix,⌘ ,} #H | #(${statsCommand}) | %Y-%m-%d %H:%M"
         bind r source-file ~/.config/tmux/tmux.conf \; display-message "Frostflake tmux reloaded"
       '';
     };
