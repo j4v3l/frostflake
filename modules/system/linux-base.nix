@@ -1,131 +1,192 @@
 {
+  config,
+  frostflakeRoot,
   pkgs,
   lib,
   ...
-}: {
-  nixpkgs.config = {
-    allowUnfree = true;
-    allowUnfreePredicate = _: true;
+}: let
+  inherit (lib) mkEnableOption mkIf mkMerge mkOption mkDefault types optionals;
+  frostflakePackages = import (frostflakeRoot + "/lib/frostflake/packages.nix") {inherit pkgs lib;};
+  cfg = config.frostflake.base;
+  defaultCliPackages = frostflakePackages.system.cli;
+  defaultDesktopPackages = frostflakePackages.system.desktop;
+  defaultPipewire = {
+    sampleRate = 48000;
+    allowedRates = [48000 96000];
+    latency = "64/48000";
+    resampleQuality = 10;
   };
-
-  nix.settings.experimental-features = ["nix-command" "flakes"];
-
-  time = {
-    timeZone = lib.mkDefault "Etc/UTC";
-    hardwareClockInLocalTime = lib.mkDefault true;
-  };
-  i18n.defaultLocale = lib.mkDefault "en_US.UTF-8";
-  console.keyMap = lib.mkDefault "us";
-
-  networking.networkmanager.enable = true;
-
-  hardware.graphics.enable = true;
-  hardware.graphics.enable32Bit = lib.mkDefault pkgs.stdenv.hostPlatform.isx86_64;
-
-  security.rtkit.enable = true;
-
-  services = {
-    udev.extraRules = ''
-      # Stable alias for the Maono PD400X USB audio interface
-      ACTION=="add", SUBSYSTEM=="sound", ATTRS{idVendor}=="352f", ATTRS{idProduct}=="0100", ATTRS{product}=="PD400X Podcast Microphone", SYMLINK+="snd/by-id/PD400X"
-      # Ensure MCU serial adapters are writable for dialout users
-      KERNEL=="ttyACM[0-9]*", MODE:="0660", GROUP:="dialout"
-      KERNEL=="ttyUSB[0-9]*", MODE:="0660", GROUP:="dialout"
-    '';
-    fwupd.enable = true;
-    openssh = {
-      enable = true;
-      settings = {
-        PermitRootLogin = "no";
-        PasswordAuthentication = false;
-        KbdInteractiveAuthentication = false;
-        X11Forwarding = false;
-        AllowAgentForwarding = false;
-        AllowTcpForwarding = false;
-        LoginGraceTime = "30s";
-        ClientAliveInterval = 300;
-        ClientAliveCountMax = 2;
-        MaxAuthTries = 3;
-      };
-    };
-    pipewire = {
-      enable = true;
-      alsa.enable = true;
-      alsa.support32Bit = true;
-      pulse.enable = true;
-      jack.enable = true;
-      extraConfig = {
-        pipewire."context.properties" = {
-          default = {
-            clock = {
-              rate = 48000;
-              allowed-rates = [48000 96000];
-              quantum = 256;
-              min-quantum = 32;
-              max-quantum = 2048;
-            };
-          };
-          resample.quality = 10;
-        };
-        "pipewire-pulse"."context.properties" = {
-          "resample.quality" = 10;
-        };
-        "pipewire-pulse"."stream.properties" = {
-          "node.latency" = "64/48000";
-          "resample.quality" = 10;
-        };
-      };
-    };
-    ollama.enable = lib.mkDefault pkgs.stdenv.hostPlatform.isx86_64;
-    dockerManager.enable = lib.mkDefault true;
-  };
-
-  programs.zsh.enable = true;
-  programs.direnv = {
+  mkPipewireConfig = settings: {
     enable = true;
-    nix-direnv.enable = true;
+    alsa.enable = true;
+    alsa.support32Bit = true;
+    pulse.enable = true;
+    jack.enable = true;
+    extraConfig = {
+      pipewire."context.properties" = {
+        default = {
+          clock = {
+            rate = settings.sampleRate;
+            allowed-rates = settings.allowedRates;
+            quantum = 256;
+            min-quantum = 32;
+            max-quantum = 2048;
+          };
+        };
+        resample.quality = settings.resampleQuality;
+      };
+      "pipewire-pulse"."context.properties"."resample.quality" = settings.resampleQuality;
+      "pipewire-pulse"."stream.properties" = {
+        "node.latency" = settings.latency;
+        "resample.quality" = settings.resampleQuality;
+      };
+    };
+  };
+in {
+  options.frostflake.base = {
+    enable = mkEnableOption "Frostflake base profile" // {default = true;};
+
+    audio = {
+      enable = mkEnableOption "PipeWire + rtkit tuning" // {default = true;};
+      pipewire = {
+        sampleRate = mkOption {
+          type = types.int;
+          default = defaultPipewire.sampleRate;
+        };
+        allowedRates = mkOption {
+          type = types.listOf types.int;
+          default = defaultPipewire.allowedRates;
+        };
+        latency = mkOption {
+          type = types.str;
+          default = defaultPipewire.latency;
+        };
+        resampleQuality = mkOption {
+          type = types.int;
+          default = defaultPipewire.resampleQuality;
+        };
+      };
+    };
+
+    peripherals = {
+      enable = mkEnableOption "Common udev rules (PD400X + MCU serial)" // {default = true;};
+      extraRules = mkOption {
+        type = types.lines;
+        default = ''
+          ACTION=="add", SUBSYSTEM=="sound", ATTRS{idVendor}=="352f", ATTRS{idProduct}=="0100", ATTRS{product}=="PD400X Podcast Microphone", SYMLINK+="snd/by-id/PD400X"
+          KERNEL=="ttyACM[0-9]*", MODE:="0660", GROUP:="dialout"
+          KERNEL=="ttyUSB[0-9]*", MODE:="0660", GROUP:="dialout"
+        '';
+      };
+    };
+
+    tooling = {
+      cli = {
+        enable = mkEnableOption "CLI + embedded tooling" // {default = true;};
+        packages = mkOption {
+          type = types.listOf types.package;
+          default = defaultCliPackages;
+        };
+      };
+      desktopApps = {
+        enable = mkEnableOption "Desktop GUI apps for x86_64 hosts" // {default = pkgs.stdenv.hostPlatform.isx86_64;};
+        packages = mkOption {
+          type = types.listOf types.package;
+          default = defaultDesktopPackages;
+        };
+      };
+    };
+
+    virtualization = {
+      docker = {
+        enable = mkEnableOption "Enable opinionated Docker manager" // {default = true;};
+      };
+    };
+
+    ollama = {
+      enable = mkEnableOption "Enable Ollama by default on x86_64" // {default = pkgs.stdenv.hostPlatform.isx86_64;};
+    };
   };
 
-  environment.systemPackages = with pkgs;
-    [
-      bat
-      direnv
-      eza
-      git
-      glances
-      nix-direnv
-      pciutils
-      ripgrep
-      tree
-      unzip
-      vim
-      wget
-      lazygit
-      tmux
-      # MCU / embedded tooling
-      arduino-cli
-      avrdude
-      dfu-util
-      esptool
-      espflash
-      espup
-      openocd
-      picocom
-      platformio-core
-      python3Packages.pyserial
-      rustup
-    ]
-    ++ lib.optionals pkgs.stdenv.hostPlatform.isx86_64 [
-      brave
-      code-cursor
-      lmstudio
-      ollama
-      vscode
-    ];
+  config = mkIf cfg.enable (mkMerge [
+    {
+      nixpkgs.config = {
+        allowUnfree = true;
+        allowUnfreePredicate = _: true;
+      };
 
-  fonts.packages = with pkgs; [
-    nerd-fonts.fira-code
-    nerd-fonts.jetbrains-mono
-    nerd-fonts.hack
-  ];
+      nix.settings.experimental-features = ["nix-command" "flakes"];
+
+      time = {
+        timeZone = mkDefault "Etc/UTC";
+        hardwareClockInLocalTime = mkDefault true;
+      };
+      i18n.defaultLocale = mkDefault "en_US.UTF-8";
+      console.keyMap = mkDefault "us";
+
+      networking.networkmanager.enable = true;
+
+      hardware.graphics.enable = true;
+      hardware.graphics.enable32Bit = mkDefault pkgs.stdenv.hostPlatform.isx86_64;
+
+      services = {
+        fwupd.enable = true;
+        openssh = {
+          enable = true;
+          settings = {
+            PermitRootLogin = "no";
+            PasswordAuthentication = false;
+            KbdInteractiveAuthentication = false;
+            X11Forwarding = false;
+            AllowAgentForwarding = false;
+            AllowTcpForwarding = false;
+            LoginGraceTime = "30s";
+            ClientAliveInterval = 300;
+            ClientAliveCountMax = 2;
+            MaxAuthTries = 3;
+          };
+        };
+      };
+
+      fonts.packages = with pkgs; [
+        nerd-fonts.fira-code
+        nerd-fonts.jetbrains-mono
+        nerd-fonts.hack
+      ];
+    }
+
+    (mkIf cfg.audio.enable {
+      security.rtkit.enable = true;
+      services.pipewire = mkPipewireConfig cfg.audio.pipewire;
+    })
+
+    (mkIf cfg.peripherals.enable {
+      services.udev.extraRules = cfg.peripherals.extraRules;
+    })
+
+    (mkIf cfg.tooling.cli.enable {
+      programs.zsh.enable = true;
+      programs.direnv = {
+        enable = true;
+        nix-direnv.enable = true;
+      };
+    })
+
+    (let
+      cliPackages = optionals cfg.tooling.cli.enable cfg.tooling.cli.packages;
+      desktopPackages = optionals cfg.tooling.desktopApps.enable cfg.tooling.desktopApps.packages;
+      combined = cliPackages ++ desktopPackages;
+    in
+      mkIf (combined != []) {
+        environment.systemPackages = combined;
+      })
+
+    (mkIf cfg.virtualization.docker.enable {
+      services.dockerManager.enable = true;
+    })
+
+    (mkIf cfg.ollama.enable {
+      services.ollama.enable = mkDefault true;
+    })
+  ]);
 }

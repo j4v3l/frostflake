@@ -1,8 +1,12 @@
 {
   inputs,
   pkgs,
+  frostflakeUser,
+  frostflakeRoot,
   ...
-}: {
+}: let
+  user = frostflakeUser;
+in {
   imports = [
     ../common/darwin.nix
     inputs.home-manager.darwinModules.home-manager
@@ -10,16 +14,17 @@
 
   networking.hostName = "glacier";
 
-  users.users.jager = {
-    name = "jager";
-    home = "/Users/jager";
-    shell = pkgs.zsh;
+  users.users.${user.username} = {
+    name = user.fullName or user.username;
+    home = user.darwinHome;
+    shell = user.shellPackage pkgs;
   };
 
   home-manager = {
     useGlobalPkgs = true;
     useUserPackages = true;
-    users.jager = import ../../home/jager/darwin/default.nix;
+    extraSpecialArgs = {inherit frostflakeUser frostflakeRoot;};
+    users.${user.username} = import ../../home/jager/darwin/default.nix;
   };
 
   system.stateVersion = 5;

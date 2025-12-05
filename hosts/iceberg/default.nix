@@ -1,39 +1,37 @@
 {
   inputs,
   lib,
+  frostflakeRoot,
+  frostflakeUser,
   ...
-}: {
-  imports = [
-    ../../modules/system/linux-base.nix
-    ../../modules/system/user-jager.nix
-    ../../modules/system/gnome.nix
-    ../../modules/system/docker.nix
-    ../../modules/hardware/gpu.nix
-    inputs.home-manager.nixosModules.home-manager
-  ];
+}: let
+  mkLinuxHost = import (frostflakeRoot + "/lib/frostflake/mk-linux-host.nix") {inherit lib;};
+in
+  mkLinuxHost {
+    inherit inputs frostflakeRoot frostflakeUser;
+    hostName = "iceberg";
+    homeModule = import ../../home/jager/linux/default.nix;
+    extraModules = [
+      ../../modules/system/gnome.nix
+      ../../modules/system/docker.nix
+      ../../modules/hardware/gpu.nix
+    ];
+    extraConfig = {
+      boot.loader.systemd-boot.enable = true;
+      boot.loader.efi.canTouchEfiVariables = true;
 
-  networking.hostName = "iceberg";
+      fileSystems."/" = lib.mkDefault {
+        device = "/dev/disk/by-label/nixos";
+        fsType = "ext4";
+      }; # adjust device for Iceberg VM
 
-  boot.loader.systemd-boot.enable = true;
-  boot.loader.efi.canTouchEfiVariables = true;
+      hardware.gpu.profile = "vm";
+      services = {
+        qemuGuest.enable = true;
+        spice-vdagentd.enable = true;
+        ollama.acceleration = lib.mkDefault false;
+      };
 
-  fileSystems."/" = lib.mkDefault {
-    device = "/dev/disk/by-label/nixos";
-    fsType = "ext4";
-  }; # adjust device for Iceberg VM
-
-  hardware.gpu.profile = "vm";
-  services = {
-    qemuGuest.enable = true;
-    spice-vdagentd.enable = true;
-    ollama.acceleration = lib.mkDefault false;
-  };
-
-  home-manager = {
-    useGlobalPkgs = true;
-    useUserPackages = true;
-    users.jager = import ../../home/jager/linux/default.nix;
-  };
-
-  system.stateVersion = "25.11";
-}
+      system.stateVersion = "25.11";
+    };
+  }

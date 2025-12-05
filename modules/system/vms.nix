@@ -287,29 +287,17 @@ with lib; let
     })
     activeVMs;
 
-  mkEtcEntries =
-    map (entry: {
-      name = "libvirt/qemu/${entry.name}.xml";
-      value = {
-        source = entry.file;
-        mode = "0600";
-      };
-    })
-    vmXmlFiles;
-
-  mkAutostartEntries = map (entry: {
-    name = "libvirt/qemu/autostart/${entry.name}.xml";
-    value = {
-      source = entry.file;
-      mode = "0600";
-    };
-  }) (filter (entry: entry.autostart) vmXmlFiles);
+  vmEntriesLiteral = concatStringsSep "\n" (map (entry: "${entry.name}|${entry.file}|${
+      if entry.autostart
+      then "1"
+      else "0"
+    }")
+    vmXmlFiles);
+  managedNamesLiteral = concatStringsSep "\n" (map (entry: entry.name) vmXmlFiles);
 
   mkNvramRules =
     mapAttrsToList (name: _: ''C /var/lib/libvirt/qemu/nvram/${name}.fd 0600 root root - ${pkgs.OVMFFull.fd}/FV/OVMF_VARS.fd'')
     (filterAttrs (_: vm: vm.uefi) activeVMs);
-
-  etcAssignments = map (entry: {"${entry.name}" = entry.value;}) (mkEtcEntries ++ mkAutostartEntries);
 
   tmpfilesRules = let
     nvramRules = mkNvramRules;
@@ -344,10 +332,14 @@ in {
 
   config = mkIf cfg.enable (
     let
-      etcSet =
-        if etcAssignments == []
-        then {}
-        else mkMerge etcAssignments;
+      vmDataBlock =
+        if vmXmlFiles == []
+        then ""
+        else vmEntriesLiteral + "\n";
+      managedNamesBlock =
+        if managedNamesLiteral == ""
+        then ""
+        else managedNamesLiteral + "\n";
     in {
       assertions =
         mapAttrsToList (
@@ -375,7 +367,55 @@ in {
 
       environment.systemPackages = cfg.packages;
 
-      environment.etc = etcSet;
+      systemd.services.vm-manager-define = {
+        description = "Apply declarative libvirt guests";
+        wantedBy = ["multi-user.target"];
+        requires = ["libvirtd.service"];
+        after = ["libvirtd.service"];
+        serviceConfig = {
+          Type = "oneshot";
+        };
+        path = with pkgs; [coreutils gnugrep libvirt];
+        script = ''
+                    set -euo pipefail
+                    virsh() {
+                      ${pkgs.libvirt}/bin/virsh --connect qemu:///system "$@"
+                    }
+                    managed_file="/var/lib/libvirt/vm-manager.managed"
+                    tmp=$(mktemp)
+                    cat <<'EOF' > "$tmp"
+          ${managedNamesBlock}
+          EOF
+
+                    if [ -f "$managed_file" ]; then
+                      while IFS= read -r name; do
+                        [ -n "$name" ] || continue
+                        if ! grep -Fxq "$name" "$tmp"; then
+                          echo "Removing unmanaged VM: $name"
+                          virsh undefine "$name" --nvram || true
+                        fi
+                      done < "$managed_file"
+                    fi
+
+                    cat "$tmp" > "$managed_file"
+                    rm -f "$tmp"
+
+                    ${optionalString (vmXmlFiles != []) ''
+                        cat <<'EOF_DEFINE' | while IFS='|' read -r name xml autostart; do
+                          [ -n "$name" ] || continue
+                          echo "Defining VM: $name"
+                          virsh define "$xml"
+                          if [ "$autostart" = "1" ]; then
+                            virsh autostart "$name"
+                          else
+                            virsh autostart --disable "$name"
+                          fi
+                        done
+            ${vmDataBlock}
+            EOF_DEFINE
+          ''}
+        '';
+      };
 
       systemd.tmpfiles.rules = mkAfter tmpfilesRules;
     }

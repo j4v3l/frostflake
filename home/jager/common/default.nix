@@ -1,14 +1,17 @@
 {
   pkgs,
   lib,
+  frostflakeUser,
+  frostflakeRoot,
   ...
 }: let
   inherit (pkgs.stdenv) isDarwin;
-  isX86Linux = (!isDarwin) && pkgs.stdenv.hostPlatform.isx86_64;
+  user = frostflakeUser;
   homeDir =
     if isDarwin
-    then "/Users/jager"
-    else "/home/jager";
+    then user.darwinHome
+    else user.linuxHome;
+  frostflakePackages = import (frostflakeRoot + "/lib/frostflake/packages.nix") {inherit pkgs lib;};
   envFlakePath = builtins.getEnv "FLAKE_PATH";
   candidateFlakePaths =
     lib.optional (envFlakePath != "") envFlakePath
@@ -21,8 +24,12 @@
     ];
   flakePath =
     lib.findFirst (p: builtins.pathExists p)
-    (lib.head candidateFlakePaths)
+    null
     candidateFlakePaths;
+  defaultFlakeRef =
+    if flakePath != null
+    then "\${FLAKE:-${flakePath}}"
+    else "\${FLAKE:?Set FLAKE to your frostflake checkout}";
   treeAlias = "eza --tree --icons=always";
   fastfetchModules = [
     "title"
@@ -149,48 +156,19 @@
   '';
 in {
   home = {
-    username = "jager";
+    inherit (user) username;
     homeDirectory = homeDir;
     packages =
-      (with pkgs; [
-        alejandra
-        bat
-        btop
-        dfu-util
-        deadnix
-        direnv
-        eza
-        fd
-        glances
-        openocd
-        neovim
-        picocom
-        platformio-core
-        ripgrep
-        starship
-        statix
-        python3Packages.pyserial
-        tree
-        arduino-cli
-        esptool
-        espflash
-        espup
-        rustup
-      ])
-      ++ lib.optionals isX86Linux (with pkgs; [
-        brave
-        code-cursor
-        gnome-terminal
-        lmstudio
-        ollama
-        vscode
-      ])
+      frostflakePackages.home.common
+      ++ lib.optionals (!isDarwin) frostflakePackages.home.linuxDesktop
+      ++ lib.optionals isDarwin frostflakePackages.home.darwinExtra
       ++ [tmuxMetricsScript];
-    sessionVariables = {
-      FLAKE = flakePath;
-      EDITOR = "nvim";
-      LESS = "-FRSX";
-    };
+    sessionVariables =
+      {
+        EDITOR = "nvim";
+        LESS = "-FRSX";
+      }
+      // lib.optionalAttrs (flakePath != null) {FLAKE = flakePath;};
     stateVersion = "24.11";
   };
 
@@ -203,8 +181,8 @@ in {
     git = {
       enable = true;
       settings = {
-        user.name = "j4v3l";
-        user.email = "jj4v3l@gmail.com";
+        user.name = user.git.name;
+        user.email = user.git.email;
         init.defaultBranch = "master";
         pull.ff = "only";
         push.autoSetupRemote = true;
@@ -293,10 +271,10 @@ in {
           tmf = "tmux attach -t frostflake || tmux new -s frostflake";
         }
         (lib.mkIf (!isDarwin) {
-          nixup = "sudo nixos-rebuild switch --flake \${FLAKE:-${flakePath}}#\$(hostname)";
-          pkgupgrade = "sudo nixos-rebuild switch --flake \${FLAKE:-${flakePath}}#\$(hostname)";
-          nixboot = "sudo nixos-rebuild boot --flake \${FLAKE:-${flakePath}}#\$(hostname)";
-          nixdry = "nixos-rebuild dry-activate --flake \${FLAKE:-${flakePath}}#\$(hostname)";
+          nixup = "sudo nixos-rebuild switch --flake ${defaultFlakeRef}#\$(hostname)";
+          pkgupgrade = "sudo nixos-rebuild switch --flake ${defaultFlakeRef}#\$(hostname)";
+          nixboot = "sudo nixos-rebuild boot --flake ${defaultFlakeRef}#\$(hostname)";
+          nixdry = "nixos-rebuild dry-activate --flake ${defaultFlakeRef}#\$(hostname)";
           vmls = "virsh list --all";
           vmstart = "virsh start";
           vmstop = "virsh shutdown";
@@ -305,7 +283,7 @@ in {
           vmautostart = "virsh autostart";
         })
         (lib.mkIf isDarwin {
-          pkgupgrade = "darwin-rebuild switch --flake \${FLAKE:-${flakePath}}#Glacier";
+          pkgupgrade = "darwin-rebuild switch --flake ${defaultFlakeRef}#Glacier";
         })
       ];
     };

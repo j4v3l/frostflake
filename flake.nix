@@ -31,7 +31,8 @@
     ...
   }: let
     inherit (nixpkgs) lib;
-    user = "jager";
+    frostflakeRoot = ./.;
+    frostflakeUser = import ./lib/frostflake/user.nix;
     systems = ["x86_64-linux" "aarch64-linux" "aarch64-darwin"];
     forAllSystems = fn:
       lib.genAttrs systems (system: let
@@ -39,38 +40,21 @@
           inherit system;
           config.allowUnfree = true;
         };
+        frostflakePackages = import (frostflakeRoot + "/lib/frostflake/packages.nix") {inherit pkgs lib;};
       in
-        fn {inherit system pkgs;});
+        fn {inherit system pkgs frostflakePackages;});
   in {
     formatter = forAllSystems ({pkgs, ...}: pkgs.alejandra);
 
     devShells = forAllSystems ({
       pkgs,
       system,
+      frostflakePackages,
       ...
     }: {
       default = pkgs.mkShell {
         name = "frostflake";
-        packages = with pkgs; [
-          alejandra
-          statix
-          deadnix
-          direnv
-          nix-direnv
-          git
-          pre-commit
-          # Embedded / MCU tooling
-          arduino-cli
-          dfu-util
-          esptool
-          espflash
-          espup
-          openocd
-          picocom
-          platformio-core
-          python3Packages.pyserial
-          rustup
-        ];
+        packages = frostflakePackages.devShell;
         shellHook = ''
           export NIX_CONFIG="experimental-features = nix-command flakes"
           echo "Loaded frostflake dev shell (${system}) for $USER"
@@ -92,25 +76,25 @@
     nixosConfigurations = {
       Avalanche = lib.nixosSystem {
         system = "x86_64-linux";
-        specialArgs = {inherit inputs user;};
+        specialArgs = {inherit inputs frostflakeUser frostflakeRoot;};
         modules = [./hosts/avalanche/default.nix];
       };
 
       Aurora = lib.nixosSystem {
         system = "x86_64-linux";
-        specialArgs = {inherit inputs user;};
+        specialArgs = {inherit inputs frostflakeUser frostflakeRoot;};
         modules = [./hosts/aurora/default.nix];
       };
 
       Iceberg = lib.nixosSystem {
         system = "x86_64-linux";
-        specialArgs = {inherit inputs user;};
+        specialArgs = {inherit inputs frostflakeUser frostflakeRoot;};
         modules = [./hosts/iceberg/default.nix];
       };
 
       Hailstone = lib.nixosSystem {
         system = "aarch64-linux";
-        specialArgs = {inherit inputs user;};
+        specialArgs = {inherit inputs frostflakeUser frostflakeRoot;};
         modules = [./hosts/hailstone/default.nix];
       };
     };
@@ -118,7 +102,7 @@
     darwinConfigurations = {
       Glacier = nix-darwin.lib.darwinSystem {
         system = "aarch64-darwin";
-        specialArgs = {inherit inputs user;};
+        specialArgs = {inherit inputs frostflakeUser frostflakeRoot;};
         modules = [./hosts/glacier/default.nix];
       };
     };
