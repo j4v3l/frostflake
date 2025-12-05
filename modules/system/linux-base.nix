@@ -28,6 +28,9 @@
     udev.extraRules = ''
       # Stable alias for the Maono PD400X USB audio interface
       ACTION=="add", SUBSYSTEM=="sound", ATTRS{idVendor}=="352f", ATTRS{idProduct}=="0100", ATTRS{product}=="PD400X Podcast Microphone", SYMLINK+="snd/by-id/PD400X"
+      # Ensure MCU serial adapters are writable for dialout users
+      KERNEL=="ttyACM[0-9]*", MODE:="0660", GROUP:="dialout"
+      KERNEL=="ttyUSB[0-9]*", MODE:="0660", GROUP:="dialout"
     '';
     fwupd.enable = true;
     openssh = {
@@ -99,6 +102,18 @@
       wget
       lazygit
       tmux
+      # MCU / embedded tooling
+      arduino-cli
+      avrdude
+      dfu-util
+      esptool
+      espflash
+      espup
+      openocd
+      picocom
+      platformio-core
+      python3Packages.pyserial
+      rustup
     ]
     ++ lib.optionals pkgs.stdenv.hostPlatform.isx86_64 [
       brave

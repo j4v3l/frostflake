@@ -51,7 +51,26 @@
     }: {
       default = pkgs.mkShell {
         name = "frostflake";
-        packages = with pkgs; [alejandra statix deadnix direnv nix-direnv git pre-commit];
+        packages = with pkgs; [
+          alejandra
+          statix
+          deadnix
+          direnv
+          nix-direnv
+          git
+          pre-commit
+          # Embedded / MCU tooling
+          arduino-cli
+          dfu-util
+          esptool
+          espflash
+          espup
+          openocd
+          picocom
+          platformio-core
+          python3Packages.pyserial
+          rustup
+        ];
         shellHook = ''
           export NIX_CONFIG="experimental-features = nix-command flakes"
           echo "Loaded frostflake dev shell (${system}) for $USER"

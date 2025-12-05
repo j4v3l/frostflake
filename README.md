@@ -91,7 +91,18 @@ Each VM can be toggled individually with `enable = true/false`, made to autostar
 
 - Zsh with completions, autosuggestions, syntax highlighting, direnv hooks, and starship prompt (Nerdfonts are provisioned on both Linux and macOS).
 - Aliases for modern dir tooling (`eza`, `tree`), Git helpers, and NixOS workflows (`nixup`, `nixboot`, `nixdry`, `nclean`, etc.).
-- Common CLI packages: alejandra, direnv, eza, fd, ripgrep, glances, tree, starship, neovim, statix, deadnix. Linux adds GUI apps (Brave, Cursor, LM Studio, Ollama, VS Code, GNOME Terminal); macOS installs the GUI set via Homebrew.
+- Common CLI packages: alejandra, direnv, eza, fd, ripgrep, glances, tree, starship, neovim, statix, deadnix, plus `rustup` so `cargo`/`rustc` are immediately available. Linux adds GUI apps (Brave, Cursor, LM Studio, Ollama, VS Code, GNOME Terminal); macOS installs the GUI set via Homebrew.
+
+## Microcontroller / embedded support
+
+- The dev shell (`nix develop`) now ships PlatformIO Core, Arduino CLI, esptool, **espflash**, **espup**, OpenOCD, dfu-util, picocom, and `pyserial`, so ESP32/Arduino workflows work out-of-the-box.
+- The shared Home Manager profile installs the same tooling on both Linux and macOS, so `arduino-cli`, `pio`, `esptool.py`, `espflash`, and `espup` are always on `$PATH`.
+- Linux hosts include the toolchain system-wide, enable `programs.avrdude`, and add the `jager` user to `dialout`, `uucp`, and `plugdev` for serial/USB access.
+- Typical flow:
+	1. `nix develop`
+	2. `arduino-cli core install esp32:esp32`, `pio pkg install`, or `espup install-latest` for your board support package + ESP-IDF toolchains (Rust components onboard thanks to `rustup`).
+	3. `pio run -t upload` or `arduino-cli upload -p /dev/ttyUSB0 --fqbn esp32:esp32:esp32`.
+- `picocom -b 115200 /dev/ttyUSB0` (or `screen`) is ready for serial monitoring; use `dfu-util`, `esptool.py`, or `espflash`/`espup` for low-level flashing and ESP-IDF management when PlatformIO isn’t in play.
 
 ## PD400X microphone
 

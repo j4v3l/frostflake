@@ -156,16 +156,26 @@ in {
         alejandra
         bat
         btop
+        dfu-util
         deadnix
         direnv
         eza
         fd
         glances
+        openocd
         neovim
+        picocom
+        platformio-core
         ripgrep
         starship
         statix
+        python3Packages.pyserial
         tree
+        arduino-cli
+        esptool
+        espflash
+        espup
+        rustup
       ])
       ++ lib.optionals isX86Linux (with pkgs; [
         brave
