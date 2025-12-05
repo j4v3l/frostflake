@@ -87,12 +87,72 @@
     }
     "colors"
   ];
+  pythonWithPsutil = pkgs.python3.withPackages (ps: [ps.psutil]);
+  tmuxMetricsScript = pkgs.writeShellScriptBin "tmux-frostflake-stats" ''
+        exec ${pythonWithPsutil}/bin/python3 - <<'PY'
+    import shutil
+    import subprocess
+    import psutil
+
+
+    def cpu_usage():
+        return round(psutil.cpu_percent(interval=0.15))
+
+
+    def memory_usage():
+        return round(psutil.virtual_memory().percent)
+
+
+    def battery_status():
+        data = psutil.sensors_battery()
+        if data is None:
+            return "--"
+        plug = "+" if data.power_plugged else ""
+        return f"{int(data.percent)}%{plug}"
+
+
+    def gpu_usage():
+        nvidia = shutil.which("nvidia-smi")
+        if not nvidia:
+            return "--"
+        try:
+            lines = (
+                subprocess.check_output(
+                    [
+                        nvidia,
+                        "--query-gpu=utilization.gpu",
+                        "--format=csv,noheader,nounits",
+                    ],
+                    text=True,
+                    timeout=0.4,
+                )
+                .strip()
+                .splitlines()
+            )
+            if lines:
+                value = lines[0].strip()
+                if value:
+                    return f"{value}%"
+        except Exception:
+            pass
+        return "--"
+
+
+    stats = "CPU {cpu}% · MEM {mem}% · BAT {bat} · GPU {gpu}".format(
+        cpu=cpu_usage(),
+        mem=memory_usage(),
+        bat=battery_status(),
+        gpu=gpu_usage(),
+    )
+    print(stats, end="")
+    PY
+  '';
 in {
   home = {
     username = "jager";
     homeDirectory = homeDir;
-    packages = with pkgs;
-      [
+    packages =
+      (with pkgs; [
         alejandra
         bat
         deadnix
@@ -105,15 +165,16 @@ in {
         starship
         statix
         tree
-      ]
-      ++ lib.optionals isX86Linux [
+      ])
+      ++ lib.optionals isX86Linux (with pkgs; [
         brave
         code-cursor
         gnome-terminal
         lmstudio
         ollama
         vscode
-      ];
+      ])
+      ++ [tmuxMetricsScript];
     sessionVariables = {
       FLAKE = flakePath;
       EDITOR = "nvim";
@@ -210,6 +271,7 @@ in {
         red = "#eb4d28";
         white = "#f2f2f2";
       };
+      statsCommand = "${tmuxMetricsScript}/bin/tmux-frostflake-stats";
     in {
       enable = true;
       extraConfig = ''
@@ -235,14 +297,16 @@ in {
         set -g pane-active-border-style "fg=${palette.blue}"
         set -g display-panes-colour ${palette.bg3}
         set -g display-panes-active-colour ${palette.blue}
-        set -g status-style "bg=${palette.bg5} fg=${palette.gray}"
-        set -g status-left-length 80
-        set -g status-right-length 120
-        set -g window-status-separator ""
-        setw -g window-status-format "#[fg=${palette.gray}]#[fg=${palette.white},bg=${palette.bg4}] #I:#W #[fg=${palette.bg4},bg=${palette.bg5}]"
-        setw -g window-status-current-format "#[fg=${palette.bg3}]#[fg=${palette.white},bg=${palette.bg3}] #I:#W #[fg=${palette.bg3},bg=${palette.bg5}]"
-        set -g status-left "#[fg=${palette.bg1},bg=${palette.bg5}]#[fg=${palette.white},bg=${palette.bg1}] #S #[fg=${palette.bg1},bg=${palette.bg2}]#[fg=${palette.white},bg=${palette.bg2}] #H #[fg=${palette.bg2},bg=${palette.bg3}]#[fg=${palette.white},bg=${palette.bg3}] #I:#W #[fg=${palette.bg3},bg=${palette.bg5}]"
-        set -g status-right "#[fg=${palette.bg4},bg=${palette.bg5}]#[fg=${palette.white},bg=${palette.bg4}] #{?client_prefix,⏱ ,}#[fg=${palette.bg4},bg=${palette.bg5}]#[fg=${palette.gray},bg=${palette.bg5}] %Y-%m-%d %I:%M %p #[fg=${palette.bg5},bg=default]"
+        set -g status-style "bg=${palette.bg5} fg=${palette.white}"
+        set -g status-left-length 40
+        set -g status-right-length 80
+        set -g window-status-separator " "
+        setw -g window-status-style "bg=${palette.bg5} fg=${palette.gray}"
+        setw -g window-status-current-style "bg=${palette.bg4} fg=${palette.white}"
+        setw -g window-status-format " #I · #W "
+        setw -g window-status-current-format " #I · #W "
+        set -g status-left "#[fg=${palette.white},bg=${palette.bg2}]   #S #[fg=${palette.bg2},bg=${palette.bg5}]"
+        set -g status-right "#[fg=${palette.gray},bg=${palette.bg5}]#{?client_prefix,⌘ ,} #[fg=${palette.white},bg=${palette.bg5}]#(${statsCommand}) #[fg=${palette.gray},bg=${palette.bg5}]· %Y-%m-%d · %H:%M"
         bind r source-file ~/.config/tmux/tmux.conf \; display-message "Frostflake tmux reloaded"
       '';
     };
