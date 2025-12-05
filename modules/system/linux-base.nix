@@ -10,7 +10,10 @@
 
   nix.settings.experimental-features = ["nix-command" "flakes"];
 
-  time.timeZone = lib.mkDefault "Etc/UTC";
+  time = {
+    timeZone = lib.mkDefault "Etc/UTC";
+    hardwareClockInLocalTime = lib.mkDefault true;
+  };
   i18n.defaultLocale = lib.mkDefault "en_US.UTF-8";
   console.keyMap = lib.mkDefault "us";
 
