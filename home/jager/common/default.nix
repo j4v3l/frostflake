@@ -229,6 +229,13 @@ in {
       history.path = "${homeDir}/.zsh_history";
       initContent = ''
         eval "$(direnv hook zsh)"
+        if command -v tmux >/dev/null 2>&1; then
+          if [ -z "$TMUX" ] && [ -t 0 ]; then
+            export TMUX_AUTO=1
+            tmux attach -t frostflake || tmux new -s frostflake
+            unset TMUX_AUTO
+          fi
+        fi
       '';
       shellAliases = lib.mkMerge [
         {
@@ -246,9 +253,9 @@ in {
           ncheck = "statix check . && deadnix";
         }
         (lib.mkIf (!isDarwin) {
-          nixup = "sudo nixos-rebuild switch --flake ${flakePath}#\$(hostname)";
-          nixboot = "sudo nixos-rebuild boot --flake ${flakePath}#\$(hostname)";
-          nixdry = "nixos-rebuild dry-activate --flake ${flakePath}#\$(hostname)";
+          nixup = "sudo nixos-rebuild switch --flake \${FLAKE:-${flakePath}}#\$(hostname)";
+          nixboot = "sudo nixos-rebuild boot --flake \${FLAKE:-${flakePath}}#\$(hostname)";
+          nixdry = "nixos-rebuild dry-activate --flake \${FLAKE:-${flakePath}}#\$(hostname)";
           vmls = "virsh list --all";
           vmstart = "virsh start";
           vmstop = "virsh shutdown";
@@ -262,9 +269,9 @@ in {
     tmux = let
       palette = {
         bg = "default";
+        fg = "default";
         accent = "colour4";
         muted = "colour8";
-        bright = "colour15";
         warn = "colour1";
       };
       statsCommand = "${tmuxMetricsScript}/bin/tmux-frostflake-stats";
@@ -284,7 +291,7 @@ in {
         setw -g mode-keys vi
         set -g mouse on
         set -g renumber-windows on
-        set -g status-style "bg=${palette.bg} fg=${palette.bright}"
+        set -g status-style "bg=${palette.bg} fg=${palette.fg}"
         set -g message-style "bg=${palette.accent} fg=${palette.bg}"
         set -g message-command-style "bg=${palette.accent} fg=${palette.bg}"
         set -g pane-border-style "fg=${palette.muted}"
@@ -295,10 +302,10 @@ in {
         set -g status-justify centre
         set -g status-left-length 40
         set -g status-right-length 100
-        setw -g window-status-format " #[fg=${palette.muted}]#I #[fg=${palette.bright}]#W "
-        setw -g window-status-current-format " #[fg=${palette.accent}]#I #[fg=${palette.bright},bold]#W "
-        set -g status-left "#[fg=${palette.accent},bold] #[fg=${palette.bright}]#S #[fg=${palette.muted}]#H"
-        set -g status-right "#[fg=${palette.warn}]#{?client_prefix,⌘ ,} #[fg=${palette.bright}]#(${statsCommand}) #[fg=${palette.muted}]· #[fg=${palette.bright}]%Y-%m-%d %H:%M"
+        setw -g window-status-format " #[fg=${palette.muted}]#I #[fg=${palette.fg}]#W "
+        setw -g window-status-current-format " #[fg=${palette.accent}]#I #[fg=${palette.fg},bold]#W "
+        set -g status-left "#[fg=${palette.accent},bold] #[fg=${palette.fg}]#S #[fg=${palette.muted}]#H"
+        set -g status-right "#[fg=${palette.warn}]#{?client_prefix,⌘ ,} #[fg=${palette.fg}]#(${statsCommand}) #[fg=${palette.muted}]· #[fg=${palette.fg}]%Y-%m-%d %H:%M"
         bind r source-file ~/.config/tmux/tmux.conf \; display-message "Frostflake tmux reloaded"
       '';
     };
