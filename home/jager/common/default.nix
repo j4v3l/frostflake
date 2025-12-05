@@ -197,6 +197,55 @@ in {
         })
       ];
     };
+
+    tmux = let
+      palette = {
+        bg1 = "#336699";
+        bg2 = "#2f5783";
+        bg3 = "#294262";
+        bg4 = "#232f44";
+        bg5 = "#1d2230";
+        blue = "#769ff0";
+        gray = "#999999";
+        red = "#eb4d28";
+        white = "#f2f2f2";
+      };
+    in {
+      enable = true;
+      extraConfig = ''
+        unbind C-b
+        set -g prefix C-a
+        bind C-a send-prefix
+        set -g base-index 1
+        setw -g pane-base-index 1
+        set -g history-limit 20000
+        set -g repeat-time 250
+        set -g escape-time 25
+        set -g default-terminal "tmux-256color"
+        set -ga terminal-overrides ",xterm-256color:RGB"
+        setw -g mode-keys vi
+        set -g mouse on
+        set -g renumber-windows on
+        set -g status-interval 1
+        set -g status-justify centre
+        set -g message-style "bg=${palette.bg1} fg=${palette.white}"
+        set -g message-command-style "bg=${palette.bg2} fg=${palette.white}"
+        setw -g clock-mode-colour ${palette.blue}
+        set -g pane-border-style "fg=${palette.bg3}"
+        set -g pane-active-border-style "fg=${palette.blue}"
+        set -g display-panes-colour ${palette.bg3}
+        set -g display-panes-active-colour ${palette.blue}
+        set -g status-style "bg=${palette.bg5} fg=${palette.gray}"
+        set -g status-left-length 80
+        set -g status-right-length 120
+        set -g window-status-separator ""
+        setw -g window-status-format "#[fg=${palette.gray}]#[fg=${palette.white},bg=${palette.bg4}] #I:#W #[fg=${palette.bg4},bg=${palette.bg5}]"
+        setw -g window-status-current-format "#[fg=${palette.bg3}]#[fg=${palette.white},bg=${palette.bg3}] #I:#W #[fg=${palette.bg3},bg=${palette.bg5}]"
+        set -g status-left "#[fg=${palette.bg1},bg=${palette.bg5}]#[fg=${palette.white},bg=${palette.bg1}] #S #[fg=${palette.bg1},bg=${palette.bg2}]#[fg=${palette.white},bg=${palette.bg2}] #H #[fg=${palette.bg2},bg=${palette.bg3}]#[fg=${palette.white},bg=${palette.bg3}] #I:#W #[fg=${palette.bg3},bg=${palette.bg5}]"
+        set -g status-right "#[fg=${palette.bg4},bg=${palette.bg5}]#[fg=${palette.white},bg=${palette.bg4}] #{?client_prefix,⏱ ,}#[fg=${palette.bg4},bg=${palette.bg5}]#[fg=${palette.gray},bg=${palette.bg5}] %Y-%m-%d %I:%M %p #[fg=${palette.bg5},bg=default]"
+        bind r source-file ~/.config/tmux/tmux.conf \; display-message "Frostflake tmux reloaded"
+      '';
+    };
   };
 
   fonts.fontconfig.enable = lib.mkDefault (!isDarwin);
