@@ -155,6 +155,7 @@ in {
       (with pkgs; [
         alejandra
         bat
+        btop
         deadnix
         direnv
         eza
@@ -272,6 +273,7 @@ in {
           gl = "git pull";
           nclean = "sudo nix-collect-garbage -d && nix store optimise";
           nfu = "nix flake update";
+          pkgupdate = "nix flake update";
           nfmt = "alejandra .";
           ncheck = "statix check . && deadnix";
           tmls = "tmux list-sessions";
@@ -282,6 +284,7 @@ in {
         }
         (lib.mkIf (!isDarwin) {
           nixup = "sudo nixos-rebuild switch --flake \${FLAKE:-${flakePath}}#\$(hostname)";
+          pkgupgrade = "sudo nixos-rebuild switch --flake \${FLAKE:-${flakePath}}#\$(hostname)";
           nixboot = "sudo nixos-rebuild boot --flake \${FLAKE:-${flakePath}}#\$(hostname)";
           nixdry = "nixos-rebuild dry-activate --flake \${FLAKE:-${flakePath}}#\$(hostname)";
           vmls = "virsh list --all";
@@ -290,6 +293,9 @@ in {
           vmforce = "virsh destroy";
           vmconsole = "virsh console";
           vmautostart = "virsh autostart";
+        })
+        (lib.mkIf isDarwin {
+          pkgupgrade = "darwin-rebuild switch --flake \${FLAKE:-${flakePath}}#Glacier";
         })
       ];
     };
