@@ -229,6 +229,29 @@ in {
       history.path = "${homeDir}/.zsh_history";
       initContent = ''
         eval "$(direnv hook zsh)"
+        if [ -z "''${TMUX_THEME:-}" ]; then
+          if command -v defaults >/dev/null 2>&1; then
+            if defaults read -g AppleInterfaceStyle 2>/dev/null | grep -qi "Dark"; then
+              export TMUX_THEME="dark"
+            else
+              export TMUX_THEME="light"
+            fi
+          elif command -v gsettings >/dev/null 2>&1; then
+            if gsettings get org.gnome.desktop.interface color-scheme 2>/dev/null | grep -qi "dark"; then
+              export TMUX_THEME="dark"
+            else
+              export TMUX_THEME="light"
+            fi
+          elif [ -n "''${COLORFGBG:-}" ]; then
+            bg_colour="''${COLORFGBG##*;}"
+            case "$bg_colour" in
+              0|1|2|3|4|5|6|7) export TMUX_THEME="dark" ;;
+              *) export TMUX_THEME="light" ;;
+            esac
+          else
+            export TMUX_THEME="dark"
+          fi
+        fi
         if command -v tmux >/dev/null 2>&1; then
           if [ -z "$TMUX" ] && [ -t 0 ]; then
             export TMUX_AUTO=1
@@ -251,6 +274,11 @@ in {
           nfu = "nix flake update";
           nfmt = "alejandra .";
           ncheck = "statix check . && deadnix";
+          tmls = "tmux list-sessions";
+          tma = "tmux attach -t";
+          tmn = "tmux new -s";
+          tmk = "tmux kill-session -t";
+          tmf = "tmux attach -t frostflake || tmux new -s frostflake";
         }
         (lib.mkIf (!isDarwin) {
           nixup = "sudo nixos-rebuild switch --flake \${FLAKE:-${flakePath}}#\$(hostname)";
@@ -269,7 +297,7 @@ in {
     tmux = let
       palette = {
         bg = "default";
-        fg = "default";
+        fg = "#{?#{==:#{environ:TMUX_THEME},light},colour0,colour15}";
         accent = "colour4";
         muted = "colour8";
         warn = "colour1";
