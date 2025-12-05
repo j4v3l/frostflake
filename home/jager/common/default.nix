@@ -260,6 +260,13 @@ in {
     };
 
     tmux = let
+      palette = {
+        bg = "default";
+        accent = "colour4";
+        muted = "colour8";
+        bright = "colour15";
+        warn = "colour1";
+      };
       statsCommand = "${tmuxMetricsScript}/bin/tmux-frostflake-stats";
     in {
       enable = true;
@@ -277,12 +284,21 @@ in {
         setw -g mode-keys vi
         set -g mouse on
         set -g renumber-windows on
+        set -g status-style "bg=${palette.bg} fg=${palette.bright}"
+        set -g message-style "bg=${palette.accent} fg=${palette.bg}"
+        set -g message-command-style "bg=${palette.accent} fg=${palette.bg}"
+        set -g pane-border-style "fg=${palette.muted}"
+        set -g pane-active-border-style "fg=${palette.accent}"
+        set -g display-panes-colour ${palette.muted}
+        set -g display-panes-active-colour ${palette.accent}
         set -g status-interval 1
         set -g status-justify centre
-        setw -g window-status-format " #I:#W "
-        setw -g window-status-current-format " #I:#W* "
-        set -g status-left "  #S "
-        set -g status-right "#{?client_prefix,⌘ ,} #H | #(${statsCommand}) | %Y-%m-%d %H:%M"
+        set -g status-left-length 40
+        set -g status-right-length 100
+        setw -g window-status-format " #[fg=${palette.muted}]#I #[fg=${palette.bright}]#W "
+        setw -g window-status-current-format " #[fg=${palette.accent}]#I #[fg=${palette.bright},bold]#W "
+        set -g status-left "#[fg=${palette.accent},bold] #[fg=${palette.bright}]#S #[fg=${palette.muted}]#H"
+        set -g status-right "#[fg=${palette.warn}]#{?client_prefix,⌘ ,} #[fg=${palette.bright}]#(${statsCommand}) #[fg=${palette.muted}]· #[fg=${palette.bright}]%Y-%m-%d %H:%M"
         bind r source-file ~/.config/tmux/tmux.conf \; display-message "Frostflake tmux reloaded"
       '';
     };
