@@ -18,14 +18,17 @@
   ];
 
   systemCliBase = with pkgs; [
+    age
     bat
     direnv
     eza
     git
     glances
+    age-plugin-yubikey
     nix-direnv
     pciutils
     ripgrep
+    sops
     tree
     unzip
     vim
@@ -35,6 +38,8 @@
   ];
 
   homeCliBase = with pkgs; [
+    age
+    age-plugin-yubikey
     alejandra
     bat
     btop
@@ -45,6 +50,7 @@
     glances
     neovim
     ripgrep
+    sops
     starship
     statix
     tree
@@ -57,9 +63,11 @@
   ];
 
   shellTools = with pkgs; [
+    age
     direnv
     nix-direnv
     git
+    sops
     pre-commit
   ];
 

@@ -55,10 +55,10 @@ security = {
    mkdir -p ~/.config/Yubico
    pamu2fcfg -u "$(whoami)" > ~/.config/Yubico/u2f_keys
    ```
-2. **Store the mapping file** securely (e.g., age/sops, 1Password, or a private Git submodule). During deployment you can surface it at `/etc/security/u2f-mappings` via
-   ```nix
-  frostflake.security.webauthn.mappingFileSource = /run/secrets/u2f-mappings;
-   ```
+2. **Store the mapping file** via SOPS (see `docs/secrets.md`). The
+  `frostflake.secrets` module now looks for a `pam_u2f_mappings` key inside
+  `secrets/shared.yaml` and renders it to `/etc/security/u2f-mappings` during
+  activation, so no plaintext blobs ever ship in the repo.
 3. **Generate hardware-backed SSH keys** using each YubiKey:
    ```bash
    ssh-keygen -t ed25519-sk -C "frostflake hardware key"

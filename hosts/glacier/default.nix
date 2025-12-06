@@ -10,6 +10,7 @@ in {
   imports = [
     ../common/darwin.nix
     inputs.home-manager.darwinModules.home-manager
+    inputs."sops-nix".darwinModules.sops
   ];
 
   networking.hostName = "glacier";

@@ -1,0 +1,16 @@
+# Update the Age recipients below with the public keys that are allowed to decrypt
+# Frostflake secrets. The operator key is a placeholder so `sops` commands fail
+# loudly until you replace it. See docs/secrets.md for the full workflow.
+keys:
+  - &operator "age1replace_me_with_real_public_key0000000000000000000000"
+
+creation_rules:
+  - path_regex: ^secrets/shared\.ya?ml$
+    key_groups:
+      - age:
+          - *operator
+
+  - path_regex: ^secrets/hosts/[^/]+\.ya?ml$
+    key_groups:
+      - age:
+          - *operator

@@ -56,6 +56,19 @@ $ darwin-rebuild switch --flake .#Glacier
 
 For Glacier, nix-darwin handles CLI tooling, while GUI apps (Brave, Cursor, LM Studio, Ollama, VS Code) are installed via Homebrew casks declared in `hosts/common/darwin.nix`.
 
+## Secrets + automation
+
+- Secrets are managed with sops-nix + Age. Read `docs/secrets.md` for the full
+	workflow (Age key generation, recipient rotation, and provisioning the
+	`pam_u2f_mappings` file without committing plaintext).
+- A repo-level `Makefile` wraps the common flows:
+	- `make age-key` – generate/print the Age key referenced by `SOPS_AGE_KEY_FILE`.
+	- `make secret-host HOST=<name>` – edit `secrets/hosts/<name>.yaml` via `sops`.
+	- `make secret-edit FILE=shared.yaml` – edit any file under `secrets/`.
+	- `make secrets-verify` – ensure every encrypted file is valid.
+	- `make switch HOST=<flake>` / `make darwin HOST=Glacier` – rebuild hosts.
+	- `make fmt` / `make check` – format + run `nix flake check`.
+
 ## GPU + acceleration controls
 
 `modules/hardware/gpu.nix` exposes `hardware.gpu.profile = "nvidia" | "intel" | "vm" | "none"`. Each host imports the module and sets the profile, so swapping drivers is as simple as changing that string.
