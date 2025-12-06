@@ -17,12 +17,35 @@ jobs:
         with:
           extra_nix_config: |
             experimental-features = nix-command flakes
-      - name: Cache Nix store
-        uses: cachix/cachix-action@v14
-        with:
-          name: frostflake
-          skipPush: true
       - name: Run pre-commit
         uses: pre-commit/action@v3.0.0
       - name: nix flake check
         run: nix flake check
+
+  build-hosts:
+    needs: lint
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        target:
+          - name: Avalanche
+            attr: .#nixosConfigurations.Avalanche.config.system.build.toplevel
+          - name: Aurora
+            attr: .#nixosConfigurations.Aurora.config.system.build.toplevel
+          - name: Iceberg
+            attr: .#nixosConfigurations.Iceberg.config.system.build.toplevel
+          - name: Hailstone
+            attr: .#nixosConfigurations.Hailstone.config.system.build.toplevel
+          - name: Glacier (darwin)
+            attr: .#darwinConfigurations.Glacier.system
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install Nix
+        uses: cachix/install-nix-action@v27
+        with:
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+      - name: Build ${{ matrix.target.name }}
+        run: nix build '${{ matrix.target.attr }}'
