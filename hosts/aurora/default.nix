@@ -10,9 +10,9 @@ in
   mkLinuxHost {
     inherit inputs frostflakeRoot frostflakeUser;
     hostName = "aurora";
+    desktopProfile = "deepin";
     homeModule = import ../../home/jager/linux/default.nix;
     extraModules = [
-      ../../modules/system/gnome.nix
       ../../modules/system/docker.nix
       ../../modules/system/vms.nix
       ../../modules/hardware/gpu.nix

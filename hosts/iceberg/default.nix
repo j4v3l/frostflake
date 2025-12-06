@@ -10,9 +10,9 @@ in
   mkLinuxHost {
     inherit inputs frostflakeRoot frostflakeUser;
     hostName = "iceberg";
+    desktopProfile = "xfce";
     homeModule = import ../../home/jager/linux/default.nix;
     extraModules = [
-      ../../modules/system/gnome.nix
       ../../modules/system/docker.nix
       ../../modules/hardware/gpu.nix
     ];

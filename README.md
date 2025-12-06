@@ -1,12 +1,12 @@
 # Frostflake
 
-Multi-host Nix flake for the Avalanche (desktop), Aurora (laptop), Iceberg (VM), and Glacier (macOS) systems. It targets NixOS 25.11 with GNOME on Linux plus nix-darwin + Home Manager on macOS.
+Multi-host Nix flake for the Avalanche (desktop), Aurora (laptop), Iceberg (VM), and Glacier (macOS) systems. It targets NixOS 25.11 with a selectable Linux desktop stack (GNOME by default) plus nix-darwin + Home Manager on macOS.
 
 ## Layout
 
 - `flake.nix` – exposes NixOS, nix-darwin, dev shells, and formatters.
-- `hosts/` – per-host entry points. Linux machines share the same base + GNOME modules, Glacier imports the nix-darwin stack.
-- `modules/` – reusable building blocks (`linux-base`, `gnome`, the GPU selector, the VM manager, and the user module).
+- `hosts/` – per-host entry points. Linux machines share the same base + desktop module, Glacier imports the nix-darwin stack.
+- `modules/` – reusable building blocks (`linux-base`, `desktop`, the GPU selector, the VM manager, and the user module).
 - `home/` – Home Manager profiles (common + Linux/Darwin overlays) that supply zsh, starship, aliases, etc.
 - `.envrc` / `.direnv/` – enables `direnv` (`use flake`) for automatic shells.
 - `.pre-commit-config.yaml` – runs `alejandra`, `statix`, `deadnix`, and `nix flake check` before each commit.
@@ -62,6 +62,20 @@ For Glacier, nix-darwin handles CLI tooling, while GUI apps (Brave, Cursor, LM S
 
 Ollama’s acceleration is configured per host (`services.ollama.acceleration`). Avalanche uses `"cuda"` to match the RTX 5070 Ti; other machines leave it `false` for CPU-only inference. There is no separate `ollama-cuda` package—just flip the acceleration mode if the GPU supports CUDA/ROCm/Vulkan.
 
+## Desktop selection
+
+`modules/system/desktop.nix` now reads its marching orders from the helper: every call to `mkLinuxHost` can pass `desktopProfile = "gnome" | "kde" | "xfce" | "cosmic" | "deepin"` (and optionally `desktopEnable = false` for headless nodes). The module wires up the right display manager + Wayland session for each DE, supplies the matching portals, and reuses the same base X11/Flatpak defaults.
+
+```nix
+mkLinuxHost {
+	# …standard args…
+	desktopProfile = "kde";   # Avalanche uses "gnome", Iceberg "xfce", etc.
+	desktopEnable = true;      # `false` keeps Hailstone headless
+}
+```
+
+Avalanche sticks with GNOME, Aurora requests KDE, Iceberg prefers XFCE, and Hailstone disables the stack entirely without having to touch the shared modules.
+
 ## Declarative libvirt VMs
 
 `modules/system/vms.nix` enables a libvirt-backed VM manager that both Avalanche and Aurora import. Turn it on per host via:
@@ -114,5 +128,6 @@ Each VM can be toggled individually with `enable = true/false`, made to autostar
 
 - **Root disks** – update `fileSystems."/"` in each host to reflect the real device/UUID.
 - **Drivers** – change `hardware.gpu.profile` (and, if needed, `services.ollama.acceleration`) to adopt a new GPU.
+- **Desktop** – pass `desktopProfile = "gnome" | "kde" | "xfce" | "cosmic" | "deepin"` (or `desktopEnable = false`) to `mkLinuxHost` when defining a host to choose the environment.
 - **Packages** – extend `modules/system/linux-base.nix` or the Home Manager profiles for shared tooling.
 - **Secrets** – add host-specific modules or overlays for secrets; nothing sensitive is committed by default.

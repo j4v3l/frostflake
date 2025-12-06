@@ -4,12 +4,21 @@
   frostflakeUser,
   homeModule,
   hostName,
+  desktopProfile ? "gnome",
+  desktopEnable ? true,
   extraModules ? [],
   extraConfig ? {},
   ...
 }: let
   inherit (lib) mkMerge;
+  desktopModule = import (frostflakeRoot + "/modules/system/desktop.nix") {
+    frostflakeDesktop = {
+      enable = desktopEnable;
+      type = desktopProfile;
+    };
+  };
   baseImports = [
+    desktopModule
     (frostflakeRoot + "/modules/system/linux-base.nix")
     (frostflakeRoot + "/modules/system/user.nix")
     (frostflakeRoot + "/modules/hardware/gpu.nix")
@@ -27,5 +36,8 @@
   };
 in {
   imports = baseImports ++ extraModules;
-  config = mkMerge [baseConfig extraConfig];
+  config = mkMerge [
+    baseConfig
+    extraConfig
+  ];
 }

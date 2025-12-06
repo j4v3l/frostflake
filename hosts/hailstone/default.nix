@@ -10,6 +10,7 @@ in
   mkLinuxHost {
     inherit inputs frostflakeRoot frostflakeUser;
     hostName = "hailstone";
+    desktopEnable = false;
     homeModule = import ../../home/jager/linux/default.nix;
     extraModules = [
       ../../modules/system/docker.nix
