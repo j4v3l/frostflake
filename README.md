@@ -64,7 +64,7 @@ Ollama’s acceleration is configured per host (`services.ollama.acceleration`).
 
 ## Desktop selection
 
-`modules/system/desktop.nix` now reads its marching orders from the helper: every call to `mkLinuxHost` can pass `desktopProfile = "gnome" | "kde" | "xfce" | "cosmic" | "deepin"` (and optionally `desktopEnable = false` for headless nodes). The module wires up the right display manager + Wayland session for each DE, supplies the matching portals, and reuses the same base X11/Flatpak defaults.
+`modules/system/desktop.nix` now reads its marching orders from the helper: every call to `mkLinuxHost` can pass `desktopProfile = "gnome" | "kde" | "xfce" | "cosmic"` (and optionally `desktopEnable = false` for headless nodes). The module wires up the right display manager + Wayland session for each DE, supplies the matching portals, and reuses the same base X11/Flatpak defaults. (Deepin was removed from nixpkgs upstream, so it is no longer offered.)
 
 ```nix
 mkLinuxHost {
@@ -128,6 +128,6 @@ Each VM can be toggled individually with `enable = true/false`, made to autostar
 
 - **Root disks** – update `fileSystems."/"` in each host to reflect the real device/UUID.
 - **Drivers** – change `hardware.gpu.profile` (and, if needed, `services.ollama.acceleration`) to adopt a new GPU.
-- **Desktop** – pass `desktopProfile = "gnome" | "kde" | "xfce" | "cosmic" | "deepin"` (or `desktopEnable = false`) to `mkLinuxHost` when defining a host to choose the environment.
+- **Desktop** – pass `desktopProfile = "gnome" | "kde" | "xfce" | "cosmic"` (or `desktopEnable = false`) to `mkLinuxHost` when defining a host to choose the environment. Deepin was dropped from nixpkgs due to lack of maintenance.
 - **Packages** – extend `modules/system/linux-base.nix` or the Home Manager profiles for shared tooling.
 - **Secrets** – add host-specific modules or overlays for secrets; nothing sensitive is committed by default.

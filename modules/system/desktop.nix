@@ -31,12 +31,12 @@
 
   mkDesktopEnable = profile: setAttrByPath (desktopManagerPathFor profile ++ [profile "enable"]) true;
 
-  displayManagerPathFor = path:
-    if hasAttrByPath (["services" "displayManager"] ++ path) options
+  displayManagerPathFor = attrPath:
+    if hasAttrByPath (["services" "displayManager"] ++ attrPath) options
     then ["services" "displayManager"]
     else ["services" "xserver" "displayManager"];
 
-  setDisplayAttr = path: value: setAttrByPath (displayManagerPathFor path ++ path) value;
+  setDisplayAttr = attrPath: value: setAttrByPath (displayManagerPathFor attrPath ++ attrPath) value;
 
   desktopProfiles = {
     gnome = mkMerge [
@@ -89,16 +89,6 @@
       (setDisplayAttr ["cosmic-greeter" "enable"] true)
       {
         xdg.portal.extraPortals = cosmicPortals;
-      }
-    ];
-
-    deepin = mkMerge [
-      (mkDesktopEnable "deepin")
-      (setDisplayAttr ["lightdm" "enable"] (mkDefault true))
-      {
-        xdg.portal.extraPortals = with pkgs; [
-          xdg-desktop-portal-gtk
-        ];
       }
     ];
   };
