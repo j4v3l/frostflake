@@ -5,6 +5,8 @@ repos:
       - id: alejandra
       - id: statix
       - id: deadnix
+      - id: treefmt
+        args: ["--fail-on-change"]
   - repo: local
     hooks:
       - id: nix-flake-check
@@ -12,3 +14,11 @@ repos:
         entry: nix flake check
         language: system
         pass_filenames: false
+
+default_install_hook_types:
+  - pre-commit
+  - commit-msg
+
+ci:
+  autoupdate_schedule: quarterly
+  skip: []

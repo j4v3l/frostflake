@@ -1,4 +1,4 @@
-# Frostflake
+# Frostflake ![NixOS](https://img.shields.io/badge/NixOS-25.11-blue) ![Flakes](https://img.shields.io/badge/Flakes-enabled-success) ![CI](https://github.com/j4v3l/frostflake/actions/workflows/ci.yml/badge.svg) ![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
 
 Multi-host Nix flake for the Avalanche (desktop), Aurora (laptop), Iceberg (VM), and Glacier (macOS) systems. It targets NixOS 25.11 with a selectable Linux desktop stack (GNOME by default) plus nix-darwin + Home Manager on macOS.
 
@@ -33,11 +33,12 @@ $ direnv allow
 $ nix develop
 
 # 3. Install the git hooks (run once per clone)
-$ pre-commit install
+$ make hooks   # installs pre-commit + commit-msg hooks
 
 # 4. Hack as usual, then lint/format
 $ nix fmt
 $ nix flake check   # also runs via pre-commit
+$ make lint         # shortcut for pre-commit run --all-files
 ```
 
 The dev shell brings `alejandra`, `statix`, `deadnix`, `direnv`, `nix-direnv`, `git`, and `pre-commit`. Hooks enforce formatting/linting and fail the commit if anything is out of date.
@@ -144,3 +145,28 @@ Each VM can be toggled individually with `enable = true/false`, made to autostar
 - **Desktop** – pass `desktopProfile = "gnome" | "kde" | "xfce" | "cosmic"` (or `desktopEnable = false`) to `mkLinuxHost` when defining a host to choose the environment. Deepin was dropped from nixpkgs due to lack of maintenance.
 - **Packages** – extend `modules/system/linux-base.nix` or the Home Manager profiles for shared tooling.
 - **Secrets** – add host-specific modules or overlays for secrets; nothing sensitive is committed by default.
+
+## CI/CD
+
+- `.github/workflows/ci.yml` runs on pushes/PRs targeting `dev` or `main`.
+- Steps: checkout, install Nix with flakes, restore the Cachix cache, run `pre-commit` (Alejandra, Statix, Deadnix, treefmt, `nix flake check`), then run a final `nix flake check` step for good measure.
+- CI must pass before merging; failing checks block PRs.
+
+## Governance & Docs
+
+- `CODEOWNERS` keeps @j4v3l in the loop for changes under `hosts/`, `modules/`, and shared libraries.
+- Issue & PR templates live under `.github/ISSUE_TEMPLATE/` and `.github/pull_request_template.md`.
+- Please read `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, `CONTRIBUTORS.md`, and `docs/secrets.md` before contributing.
+
+## Security
+
+- Follow `SECURITY.md` for responsible disclosure and the SOPS/Age policy.
+- Secrets belong in encrypted files under `secrets/` (use the `make secret-*` helpers). Plaintext credentials are never allowed.
+
+## License
+
+Frostflake is released under the [MIT License](LICENSE).
+
+## Contributors
+
+See [`CONTRIBUTORS.md`](CONTRIBUTORS.md) for the folks maintaining Frostflake. Want to be listed? Check `CONTRIBUTING.md` and open a PR!

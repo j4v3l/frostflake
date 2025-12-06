@@ -1,0 +1,7 @@
+# Teams responsible for each path. Keep the most specific match last.
+# See https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+*       @j4v3l
+/modules @j4v3l
+/hosts   @j4v3l
+/home    @j4v3l

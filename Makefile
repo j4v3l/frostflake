@@ -5,7 +5,7 @@ HOST ?=
 FILE ?=
 EDITOR ?= nvim
 
-.PHONY: age-key secret-host secret-edit secrets-verify fmt check switch build darwin devshell repl clean
+.PHONY: age-key secret-host secret-edit secrets-verify fmt check switch build darwin devshell repl clean hooks lint
 
 age-key:
 	@mkdir -p "$(dir $(SOPS_AGE_KEY_FILE))"
@@ -28,6 +28,12 @@ secret-edit:
 
 secrets-verify:
 	@find secrets -name '*.yaml' -print0 | xargs -0 -r sops --verify
+
+hooks:
+	pre-commit install --install-hooks --hook-type commit-msg
+
+lint:
+	pre-commit run --all-files
 
 fmt:
 	nix fmt .
