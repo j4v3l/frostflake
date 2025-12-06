@@ -38,8 +38,3 @@
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
   hardware.cpu.amd.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
 }
-# pw-cli list-objects Device | rg -n -A6 -B2 -i maono
-# pw-cli list-objects Device | rg -n -A6 -B2 -i maono
-# ls /dev/snd/by-id/ -l | grep -i maono
-# udevadm info --query=all --name=/dev/snd/by-id/<the-name-from-above>
-

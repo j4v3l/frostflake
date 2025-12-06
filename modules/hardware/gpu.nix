@@ -9,9 +9,6 @@
   isIntel = cfg.profile == "intel";
   isVm = cfg.profile == "vm";
   nvidiaPkg = config.boot.kernelPackages.nvidiaPackages.latest;
-  nvidiaToolkitCfg = config.hardware.nvidia-container-toolkit;
-  nvidiaToolkitPackage = nvidiaToolkitCfg.package or pkgs.nvidia-container-toolkit;
-  nvidiaRuntimePackage = nvidiaToolkitPackage.tools or nvidiaToolkitPackage;
   intelPackages = with pkgs; [
     intel-media-driver
     intel-vaapi-driver
@@ -19,7 +16,7 @@
     libvdpau-va-gl
   ];
   vmDrivers = ["qxl" "vmware"];
-  inherit (lib) mkIf mkOption types mkDefault mkMerge optional;
+  inherit (lib) mkIf mkOption types mkDefault mkMerge;
 in {
   options.hardware.gpu.profile = mkOption {
     type = types.enum ["nvidia" "intel" "vm" "none"];
@@ -41,9 +38,6 @@ in {
         graphics.extraPackages = with pkgs; [nvidia-vaapi-driver];
         nvidia-container-toolkit.enable = mkDefault true;
       };
-      environment.systemPackages =
-        [nvidiaToolkitPackage]
-        ++ optional (nvidiaRuntimePackage != nvidiaToolkitPackage) nvidiaRuntimePackage;
     })
 
     (mkIf isIntel {
