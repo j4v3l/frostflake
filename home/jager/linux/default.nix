@@ -27,6 +27,8 @@ in {
       color-scheme = "prefer-dark";
       clock-format = "12h";
       show-battery-percentage = true;
+      cursor-theme = "Adwaita";
+      cursor-size = 24;
     };
     "org/gnome/desktop/wm/preferences" = {
       button-layout = "appmenu:minimize,maximize,close";

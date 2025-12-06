@@ -153,6 +153,11 @@ in {
         nerd-fonts.jetbrains-mono
         nerd-fonts.hack
       ];
+
+      environment.variables = {
+        XCURSOR_THEME = mkDefault "Adwaita";
+        XCURSOR_SIZE = mkDefault "24";
+      };
     }
 
     (mkIf cfg.audio.enable {
