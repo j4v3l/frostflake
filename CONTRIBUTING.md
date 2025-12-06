@@ -5,7 +5,7 @@ Thanks for your interest in improving Frostflake! This document explains how to 
 ## Prerequisites
 - Install [Nix](https://nixos.org/download.html) with flakes enabled.
 - Run `direnv allow` once so the dev shell loads automatically.
-- Install git hooks: `make hooks` (runs `pre-commit install --hook-type commit-msg`).
+- Install git hooks: `make hooks` (installs pre-commit, commit-msg, and pre-push hooks).
 
 ## Development workflow
 1. Create a feature branch from `dev`.

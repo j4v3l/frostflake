@@ -1,0 +1,23 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "nix flake check",
+      "type": "shell",
+      "command": "nix flake check",
+      "problemMatcher": []
+    },
+    {
+      "label": "pre-commit lint",
+      "type": "shell",
+      "command": "pre-commit run --all-files",
+      "problemMatcher": []
+    },
+    {
+      "label": "nix fmt",
+      "type": "shell",
+      "command": "nix fmt",
+      "problemMatcher": []
+    }
+  ]
+}

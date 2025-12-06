@@ -33,7 +33,7 @@ $ direnv allow
 $ nix develop
 
 # 3. Install the git hooks (run once per clone)
-$ make hooks   # installs pre-commit + commit-msg hooks
+$ make hooks   # installs pre-commit, commit-msg, and pre-push hooks
 
 # 4. Hack as usual, then lint/format
 $ nix fmt
@@ -41,7 +41,7 @@ $ nix flake check   # also runs via pre-commit
 $ make lint         # shortcut for pre-commit run --all-files
 ```
 
-The dev shell brings `alejandra`, `statix`, `deadnix`, `direnv`, `nix-direnv`, `git`, and `pre-commit`. Hooks enforce formatting/linting and fail the commit if anything is out of date.
+The dev shell brings `alejandra`, `statix`, `deadnix`, `direnv`, `nix-direnv`, `git`, and `pre-commit`. Hooks fire on commit and push (so VS Code pushes also run linting) and fail if anything is out of date.
 
 ## Deploying hosts
 

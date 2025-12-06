@@ -1,0 +1,20 @@
+{
+  "nixEnvSelector.namedConfigurations": [
+    {
+      "name": "frostflake-dev",
+      "nixFile": "flake.nix",
+      "profile": "default"
+    }
+  ],
+  "nixEnvSelector.defaultNixFile": "flake.nix",
+  "nixEnvSelector.defaultProfile": "default",
+  "nix.enableLanguageServer": true,
+  "nix.serverPath": "nil",
+  "editor.formatOnSave": true,
+  "files.trimTrailingWhitespace": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll": "explicit"
+  },
+  "prettier.enable": false,
+  "files.eol": "\n"
+}

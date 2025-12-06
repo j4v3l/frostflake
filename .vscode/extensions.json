@@ -1,0 +1,8 @@
+{
+  "recommendations": [
+    "jnoortheen.nix-ide",
+    "ms-vscode.makefile-tools",
+    "tamasfe.even-better-toml",
+    "github.vscode-github-actions"
+  ]
+}

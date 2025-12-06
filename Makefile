@@ -30,7 +30,9 @@ secrets-verify:
 	@find secrets -name '*.yaml' -print0 | xargs -0 -r sops --verify
 
 hooks:
-	pre-commit install --install-hooks --hook-type commit-msg
+	pre-commit install --install-hooks
+	pre-commit install --hook-type commit-msg
+	pre-commit install --hook-type pre-push
 
 lint:
 	pre-commit run --all-files
