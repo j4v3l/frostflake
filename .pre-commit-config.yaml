@@ -3,17 +3,18 @@ repos:
     hooks:
       - id: alejandra
         name: alejandra
-        entry: alejandra
+        entry: nix develop .#default -c alejandra
         language: system
         types: [nix]
       - id: statix
         name: statix
-        entry: statix check
+        entry: nix develop .#default -c statix check
         language: system
         types: [nix]
+        pass_filenames: false
       - id: deadnix
         name: deadnix
-        entry: deadnix --fail
+        entry: nix develop .#default -c deadnix --fail
         language: system
         types: [nix]
         pass_filenames: false
@@ -29,8 +30,8 @@ default_install_hook_types:
   - pre-push
 
 default_stages:
-  - commit
-  - push
+  - pre-commit
+  - pre-push
 
 ci:
   autoupdate_schedule: quarterly

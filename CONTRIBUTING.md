@@ -15,7 +15,7 @@ Thanks for your interest in improving Frostflake! This document explains how to 
    ```sh
    nix fmt
    nix flake check
-   make lint   # wraps pre-commit run --all-files
+   make lint   # runs pre-commit inside nix develop so tools are available
    ```
 5. Open an issue/PR with a clear description, linking related issues.
 

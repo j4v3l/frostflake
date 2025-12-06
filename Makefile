@@ -35,7 +35,7 @@ hooks:
 	pre-commit install --hook-type pre-push
 
 lint:
-	pre-commit run --all-files
+	nix develop "$(FLAKE)" -c pre-commit run --all-files
 
 fmt:
 	nix fmt .

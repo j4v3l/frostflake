@@ -38,7 +38,7 @@ $ make hooks   # installs pre-commit, commit-msg, and pre-push hooks
 # 4. Hack as usual, then lint/format
 $ nix fmt
 $ nix flake check   # also runs via pre-commit
-$ make lint         # shortcut for pre-commit run --all-files
+$ make lint         # runs pre-commit via nix develop so tooling is on PATH
 ```
 
 The dev shell brings `alejandra`, `statix`, `deadnix`, `direnv`, `nix-direnv`, `git`, and `pre-commit`. Hooks fire on commit and push (so VS Code pushes also run linting) and fail if anything is out of date.
