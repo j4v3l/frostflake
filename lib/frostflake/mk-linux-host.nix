@@ -20,6 +20,7 @@
   baseImports = [
     desktopModule
     (frostflakeRoot + "/modules/system/linux-base.nix")
+    (frostflakeRoot + "/modules/system/security/webauthn.nix")
     (frostflakeRoot + "/modules/system/user.nix")
     (frostflakeRoot + "/modules/hardware/gpu.nix")
     inputs."home-manager".nixosModules."home-manager"

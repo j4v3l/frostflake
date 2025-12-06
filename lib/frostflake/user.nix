@@ -21,4 +21,13 @@
     name = "j4v3l";
     email = "jj4v3l@gmail.com";
   };
+
+  security = {
+    requireWebauthn = true;
+    ssh = {
+      hardwareKeys = [];
+      softFallbackKeys = [];
+      allowSoftFallback = false;
+    };
+  };
 }
