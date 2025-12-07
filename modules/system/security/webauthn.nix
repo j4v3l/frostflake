@@ -139,10 +139,13 @@ in {
       pamServicesConfig
 
       (mkIf cfg.ssh.hardwareOnly {
-        services.openssh.settings = {
-          # Restrict user public keys to hardware-backed algorithms only.
-          PubkeyAcceptedAlgorithms = sshAlgorithmsValue;
-          AuthenticationMethods = cfg.ssh.authenticationMethods;
+        services.openssh = {
+          # `settings` wraps string values in single quotes which sshd treats as part of
+          # the value; use extraConfig so algorithm names stay verbatim.
+          extraConfig = ''
+            PubkeyAcceptedAlgorithms ${sshAlgorithmsValue}
+          '';
+          settings.AuthenticationMethods = cfg.ssh.authenticationMethods;
         };
       })
     ]);
