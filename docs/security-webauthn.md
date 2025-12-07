@@ -13,10 +13,10 @@ frostflake.security.webauthn = {
   allowUserOptOut = true;             # Users in frostflake-webauthn-exempt skip pam_u2f.
   exemptGroup = "frostflake-webauthn-exempt";
   ssh = {
-    hardwareOnly = true;              # Restrict sshd to sk-ssh-* key algorithms.
+    hardwareOnly = true;              # Restrict sshd to *-sk hardware key algorithms.
     allowedAlgorithms = [
-      "sk-ssh-ed25519@openssh.com"
-      "sk-ssh-ecdsa-sha2-nistp256@openssh.com"
+      "ssh-ed25519-sk"
+      "ecdsa-sha2-nistp256-sk"
     ];
     authenticationMethods = "publickey";
   };
@@ -68,7 +68,7 @@ security = {
 5. **Test locally** before rollout:
    ```bash
    sudo pam-auth-update --list   # Confirm pam_u2f is present
-   ssh -o PubkeyAcceptedAlgorithms=+sk-ssh-ed25519@openssh.com localhost
+  ssh -o PubkeyAcceptedAlgorithms=+ssh-ed25519-sk localhost
    ```
 
 ## Operational tips

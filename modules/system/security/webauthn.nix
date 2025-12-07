@@ -16,8 +16,8 @@
     ;
   cfg = config.frostflake.security.webauthn;
   hardwareAlgorithmsDefault = [
-    "sk-ssh-ed25519@openssh.com"
-    "sk-ssh-ecdsa-sha2-nistp256@openssh.com"
+    "ssh-ed25519-sk"
+    "ecdsa-sha2-nistp256-sk"
   ];
 in {
   options.frostflake.security.webauthn = mkOption {
