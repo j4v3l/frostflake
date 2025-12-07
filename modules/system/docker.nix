@@ -9,7 +9,11 @@ with lib; let
   nvidiaToolkit = config.hardware.nvidia-container-toolkit;
   nvidiaToolkitPackage = nvidiaToolkit.package or pkgs.nvidia-container-toolkit;
   nvidiaRuntimePackage = nvidiaToolkitPackage.tools or nvidiaToolkitPackage;
-  dockerPackages = with pkgs; [docker docker-compose lazydocker];
+  dockerPackages = with pkgs; [
+    docker
+    docker-compose
+    lazydocker
+  ];
   usersCfg = config.users.users;
   defaultUsers = builtins.attrNames (filterAttrs (_: user: user.isNormalUser or false) usersCfg);
   targetUsers =
@@ -75,13 +79,14 @@ in {
       source = lib.getExe nvidiaToolkitPackage;
     };
 
-    systemd.services.docker.environment = mkIf nvidiaToolkit.enable {
-      NVIDIA_CTK_PATH = lib.getExe nvidiaToolkitPackage;
+    systemd.services.docker = {
+      environment = mkIf nvidiaToolkit.enable {
+        NVIDIA_CTK_PATH = lib.getExe nvidiaToolkitPackage;
+      };
+      after = ["network-online.target"];
+      wants = ["network-online.target"];
     };
 
     users.groups.docker.members = mkAfter targetUsers;
-
-    systemd.services.docker.after = ["network-online.target"];
-    systemd.services.docker.wants = ["network-online.target"];
   };
 }
