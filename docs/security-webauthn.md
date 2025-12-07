@@ -15,8 +15,8 @@ frostflake.security.webauthn = {
   ssh = {
     hardwareOnly = true;              # Restrict sshd to *-sk hardware key algorithms.
     allowedAlgorithms = [
-      "ssh-ed25519-sk"
-      "ecdsa-sha2-nistp256-sk"
+      "sk-ssh-ed25519@openssh.com"
+      "sk-ecdsa-sha2-nistp256@openssh.com"
     ];
     authenticationMethods = "publickey";
   };
@@ -59,22 +59,22 @@ security = {
   `frostflake.secrets` module now looks for a `pam_u2f_mappings` key inside
   `secrets/shared.yaml` and renders it to `/etc/security/u2f-mappings` during
   activation, so no plaintext blobs ever ship in the repo.
-3. **Generate hardware-backed SSH keys** using each YubiKey:
+3. **Generate hardware-backed SSH keys (resident)** so the key is portable and the stub can be recreated on any client with the YubiKey present:
    ```bash
-   ssh-keygen -t ed25519-sk -C "frostflake hardware key"
+  ssh-keygen -t ed25519-sk -O resident -O verify-required -C "frostflake hardware key" -f ~/.ssh/id_ed25519_sk
    ```
-   Add the resulting public key (`~/.ssh/id_ed25519_sk.pub`) to `frostflakeUser.security.ssh.hardwareKeys` (or the corresponding user definition).
-4. **Optional resident credentials**: append `-O resident` to `ssh-keygen` if you want discoverable keys.
+  Add the resulting public key (`~/.ssh/id_ed25519_sk.pub`) to `frostflakeUser.security.ssh.hardwareKeys` (or the corresponding user definition).
+  To restore the stub on a new client, plug in the YubiKey and run `ssh-keygen -K -f ~/.ssh/id_ed25519_sk`.
 5. **Test locally** before rollout:
    ```bash
    sudo pam-auth-update --list   # Confirm pam_u2f is present
-  ssh -o PubkeyAcceptedAlgorithms=+ssh-ed25519-sk localhost
+  ssh -o PubkeyAcceptedAlgorithms=+sk-ssh-ed25519@openssh.com localhost
    ```
 
 ## Handy commands
 
 - `yubi-pam-enroll`: opens a pam_u2f enrollment prompt and writes the mapping line to `/tmp/u2f_mapping_$USER` for copy/paste into `secrets/shared.yaml`.
-- `yubi-ssh-key`: creates `~/.ssh/id_ed25519_sk` if it does not already exist.
+- `yubi-ssh-key`: creates a resident `~/.ssh/id_ed25519_sk` if it does not already exist (portable across clients with the YubiKey present).
 - `yk-info`: quick YubiKey status via `ykman info`.
 - `yk-oath-list`: list stored OATH accounts via `ykman oath accounts list`.
 

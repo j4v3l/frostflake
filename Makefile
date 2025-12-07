@@ -74,8 +74,9 @@ yubi-ssh-key:
 		echo "~/.ssh/id_ed25519_sk already exists; skipping"; \
 		exit 0; \
 	fi
-	@ssh-keygen -t ed25519-sk -C "$(USER) hardware key" -f "$(HOME)/.ssh/id_ed25519_sk"
+	@ssh-keygen -t ed25519-sk -O resident -O verify-required -C "$(USER) hardware key" -f "$(HOME)/.ssh/id_ed25519_sk"
 	@echo "Add ~/.ssh/id_ed25519_sk.pub to your user hardwareKeys in Nix."
+	@echo "To restore the stub on a new client with the YubiKey present: ssh-keygen -K -f ~/.ssh/id_ed25519_sk"
 
 hooks:
 	pre-commit install --install-hooks
