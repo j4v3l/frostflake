@@ -5,9 +5,11 @@ _: {
     ports = ["1312:1312"];
     environment = {
       NODE_NAME = "Avalanche";
+      NVIDIA_VISIBLE_DEVICES = "all";
+      NVIDIA_DRIVER_CAPABILITIES = "compute,utility,video,graphics";
     };
     extraOptions = [
-      "--gpus=all"
+      "--runtime=nvidia"
       "--init"
       "--pid=host"
     ];

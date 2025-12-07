@@ -30,6 +30,8 @@ in
 
       system.stateVersion = "25.11";
 
+      home-manager.backupFileExtension = "hm-bak";
+
       # Container and VM definitions now live in ./containers.nix and ./virtual-machines.nix
     };
   }

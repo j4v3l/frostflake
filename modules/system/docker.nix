@@ -69,6 +69,16 @@ in {
 
     environment.systemPackages = cfg.packages;
 
+    # Ensure NVIDIA toolkit binaries (e.g., nvidia-ctk) are available at predictable paths
+    # for docker/nvidia-container-runtime hooks.
+    environment.etc."usr/bin/nvidia-ctk" = mkIf nvidiaToolkit.enable {
+      source = lib.getExe nvidiaToolkitPackage;
+    };
+
+    systemd.services.docker.environment = mkIf nvidiaToolkit.enable {
+      NVIDIA_CTK_PATH = lib.getExe nvidiaToolkitPackage;
+    };
+
     users.groups.docker.members = mkAfter targetUsers;
 
     systemd.services.docker.after = ["network-online.target"];
