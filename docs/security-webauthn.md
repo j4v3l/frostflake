@@ -71,5 +71,14 @@ security = {
   ssh -o PubkeyAcceptedAlgorithms=+ssh-ed25519-sk localhost
    ```
 
+## Handy commands
+
+- `yubi-pam-enroll`: opens a pam_u2f enrollment prompt and writes the mapping line to `/tmp/u2f_mapping_$USER` for copy/paste into `secrets/shared.yaml`.
+- `yubi-ssh-key`: creates `~/.ssh/id_ed25519_sk` if it does not already exist.
+- `yk-info`: quick YubiKey status via `ykman info`.
+- `yk-oath-list`: list stored OATH accounts via `ykman oath accounts list`.
+
+These are available as `zsh` aliases (via home-manager) and just call the `Makefile` or `ykman` directly; ensure the `frostflake.security.webauthn` module remains enabled so the required packages (libfido2, yubikey-manager, yubikey-personalization, yubico-pam) stay installed.
+
 ## Operational tips
 

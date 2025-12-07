@@ -22,10 +22,7 @@
       "dev/frostflake"
       "frostflake"
     ];
-  flakePath =
-    lib.findFirst (p: builtins.pathExists p)
-    null
-    candidateFlakePaths;
+  flakePath = lib.findFirst (p: builtins.pathExists p) null candidateFlakePaths;
   defaultFlakeRef =
     if flakePath != null
     then "\${FLAKE:-${flakePath}}"
@@ -264,6 +261,10 @@ in {
           pkgupdate = "nix flake update";
           nfmt = "alejandra .";
           ncheck = "statix check . && deadnix";
+          yubi-pam-enroll = "make -C ${defaultFlakeRef} yubi-pam-enroll";
+          yubi-ssh-key = "make -C ${defaultFlakeRef} yubi-ssh-key";
+          yk-info = "ykman info";
+          yk-oath-list = "ykman oath accounts list";
           tmls = "tmux list-sessions";
           tma = "tmux attach -t";
           tmn = "tmux new -s";
