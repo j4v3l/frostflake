@@ -15,9 +15,10 @@
     types
     ;
   cfg = config.frostflake.security.webauthn;
+  # OpenSSH expects the FIDO2 key algorithms in the sk-*@openssh.com form.
   hardwareAlgorithmsDefault = [
-    "ssh-ed25519-sk"
-    "ecdsa-sha2-nistp256-sk"
+    "sk-ssh-ed25519@openssh.com"
+    "sk-ecdsa-sha2-nistp256@openssh.com"
   ];
 in {
   options.frostflake.security.webauthn = mkOption {
