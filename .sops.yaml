@@ -2,7 +2,7 @@
 # Frostflake secrets. The operator key is a placeholder so `sops` commands fail
 # loudly until you replace it. See docs/secrets.md for the full workflow.
 keys:
-  - &operator "age1replace_me_with_real_public_key0000000000000000000000"
+  - &operator "age15m5gyqvq4qckc7u073gnckpdnx24pcvnet5juk486ck5amrzgfkqe6k4sh"
 
 creation_rules:
   - path_regex: ^secrets/shared\.ya?ml$

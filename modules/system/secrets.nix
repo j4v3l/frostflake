@@ -95,7 +95,7 @@ in {
         pam_u2f_mappings = {
           sopsFile = builtins.path {path = cfg.sharedFile;};
           inherit (cfg.pamU2F) key;
-          inherit pamTargetPath;
+          path = pamTargetPath;
           owner = "root";
           group = "root";
           mode = "0400";
