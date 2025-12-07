@@ -108,7 +108,7 @@ in {
         mode = "0400";
       };
     };
-    sshAlgorithmsValue = lib.concatStringsSep "," cfg.ssh.allowedAlgorithms;
+    sshAlgorithmsValue = lib.concatStringsSep " " cfg.ssh.allowedAlgorithms;
     pcscPackages = [
       pkgs.libfido2
       pkgs.opensc
