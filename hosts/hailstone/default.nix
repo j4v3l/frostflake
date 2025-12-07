@@ -33,7 +33,7 @@ in
         enableRedistributableFirmware = true;
       };
 
-      services.ollama.acceleration = lib.mkDefault false;
+      frostflake.ai.ollama.acceleration = lib.mkDefault false;
 
       system.stateVersion = "25.11";
     };

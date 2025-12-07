@@ -31,11 +31,12 @@ in
       powerManagement.cpuFreqGovernor = lib.mkDefault "powersave";
       hardware.gpu.profile = "intel";
       services = {
-        ollama.acceleration = lib.mkDefault false;
         tlp.enable = true;
         power-profiles-daemon.enable = false;
         fprintd.enable = true;
       };
+
+      frostflake.ai.ollama.acceleration = lib.mkDefault false;
 
       # Container and VM definitions now live in ./containers.nix and ./virtual-machines.nix
 

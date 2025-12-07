@@ -5,14 +5,26 @@
   lib,
   ...
 }: let
-  inherit (lib) mkEnableOption mkIf mkMerge mkOption mkDefault types optionals;
+  inherit
+    (lib)
+    mkEnableOption
+    mkIf
+    mkMerge
+    mkOption
+    mkDefault
+    types
+    optionals
+    ;
   frostflakePackages = import (frostflakeRoot + "/lib/frostflake/packages.nix") {inherit pkgs lib;};
   cfg = config.frostflake.base;
   defaultCliPackages = frostflakePackages.system.cli;
   defaultDesktopPackages = frostflakePackages.system.desktop;
   defaultPipewire = {
     sampleRate = 48000;
-    allowedRates = [48000 96000];
+    allowedRates = [
+      48000
+      96000
+    ];
     latency = "64/48000";
     resampleQuality = 10;
   };
@@ -44,10 +56,18 @@
   };
 in {
   options.frostflake.base = {
-    enable = mkEnableOption "Frostflake base profile" // {default = true;};
+    enable =
+      mkEnableOption "Frostflake base profile"
+      // {
+        default = true;
+      };
 
     audio = {
-      enable = mkEnableOption "PipeWire + rtkit tuning" // {default = true;};
+      enable =
+        mkEnableOption "PipeWire + rtkit tuning"
+        // {
+          default = true;
+        };
       pipewire = {
         sampleRate = mkOption {
           type = types.int;
@@ -69,7 +89,11 @@ in {
     };
 
     peripherals = {
-      enable = mkEnableOption "Common udev rules (PD400X + MCU serial)" // {default = true;};
+      enable =
+        mkEnableOption "Common udev rules (PD400X + MCU serial)"
+        // {
+          default = true;
+        };
       extraRules = mkOption {
         type = types.lines;
         default = ''
@@ -82,14 +106,22 @@ in {
 
     tooling = {
       cli = {
-        enable = mkEnableOption "CLI + embedded tooling" // {default = true;};
+        enable =
+          mkEnableOption "CLI + embedded tooling"
+          // {
+            default = true;
+          };
         packages = mkOption {
           type = types.listOf types.package;
           default = defaultCliPackages;
         };
       };
       desktopApps = {
-        enable = mkEnableOption "Desktop GUI apps for x86_64 hosts" // {default = pkgs.stdenv.hostPlatform.isx86_64;};
+        enable =
+          mkEnableOption "Desktop GUI apps for x86_64 hosts"
+          // {
+            default = pkgs.stdenv.hostPlatform.isx86_64;
+          };
         packages = mkOption {
           type = types.listOf types.package;
           default = defaultDesktopPackages;
@@ -99,12 +131,12 @@ in {
 
     virtualization = {
       docker = {
-        enable = mkEnableOption "Enable opinionated Docker manager" // {default = true;};
+        enable =
+          mkEnableOption "Enable opinionated Docker manager"
+          // {
+            default = true;
+          };
       };
-    };
-
-    ollama = {
-      enable = mkEnableOption "Enable Ollama by default on x86_64" // {default = pkgs.stdenv.hostPlatform.isx86_64;};
     };
   };
 
@@ -115,7 +147,10 @@ in {
         allowUnfreePredicate = _: true;
       };
 
-      nix.settings.experimental-features = ["nix-command" "flakes"];
+      nix.settings.experimental-features = [
+        "nix-command"
+        "flakes"
+      ];
 
       time = {
         timeZone = mkDefault "Etc/UTC";
@@ -177,21 +212,19 @@ in {
       };
     })
 
-    (let
-      cliPackages = optionals cfg.tooling.cli.enable cfg.tooling.cli.packages;
-      desktopPackages = optionals cfg.tooling.desktopApps.enable cfg.tooling.desktopApps.packages;
-      combined = cliPackages ++ desktopPackages;
-    in
-      mkIf (combined != []) {
-        environment.systemPackages = combined;
-      })
+    (
+      let
+        cliPackages = optionals cfg.tooling.cli.enable cfg.tooling.cli.packages;
+        desktopPackages = optionals cfg.tooling.desktopApps.enable cfg.tooling.desktopApps.packages;
+        combined = cliPackages ++ desktopPackages;
+      in
+        mkIf (combined != []) {
+          environment.systemPackages = combined;
+        }
+    )
 
     (mkIf cfg.virtualization.docker.enable {
       services.dockerManager.enable = true;
-    })
-
-    (mkIf cfg.ollama.enable {
-      services.ollama.enable = mkDefault true;
     })
   ]);
 }

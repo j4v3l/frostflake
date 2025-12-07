@@ -1,7 +1,15 @@
-{pkgs, ...}: {
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}: {
   services.nix-daemon.enable = true;
 
-  nix.settings.experimental-features = ["nix-command" "flakes"];
+  nix.settings.experimental-features = [
+    "nix-command"
+    "flakes"
+  ];
 
   programs.zsh.enable = true;
 
@@ -29,13 +37,15 @@
       upgrade = false;
       cleanup = "uninstall";
     };
-    casks = [
-      "brave-browser"
-      "cursor"
-      "lm-studio"
-      "ollama"
-      "visual-studio-code"
-    ];
+    casks =
+      [
+        "brave-browser"
+        "visual-studio-code"
+      ]
+      ++ lib.optionals (
+        config.frostflake.ai.enable && config.frostflake.ai.packages.enable
+      )
+      config.frostflake.ai.packages.darwinCasks;
   };
 
   fonts = {

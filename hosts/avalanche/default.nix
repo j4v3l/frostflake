@@ -26,7 +26,7 @@ in
 
       hardware.nvidia-container-toolkit.enable = true;
       hardware.gpu.profile = "nvidia";
-      services.ollama.acceleration = lib.mkDefault "cuda";
+      frostflake.ai.ollama.acceleration = lib.mkDefault "cuda";
 
       system.stateVersion = "25.11";
 

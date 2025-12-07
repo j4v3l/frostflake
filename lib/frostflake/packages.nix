@@ -76,9 +76,6 @@
     then
       with pkgs; [
         brave
-        code-cursor
-        lmstudio
-        ollama
         vscode
       ]
     else [];
@@ -88,11 +85,18 @@
     then
       with pkgs; [
         brave
-        code-cursor
         gnome-terminal
+        vscode
+      ]
+    else [];
+
+  aiDesktopApps =
+    if pkgs.stdenv.hostPlatform.isx86_64
+    then
+      with pkgs; [
+        code-cursor
         lmstudio
         ollama
-        vscode
       ]
     else [];
 
@@ -108,6 +112,16 @@ in {
   system = {
     cli = unique systemCli;
     desktop = desktopApps;
+  };
+
+  ai = {
+    system = aiDesktopApps;
+    home = aiDesktopApps;
+    darwinCasks = [
+      "cursor"
+      "lm-studio"
+      "ollama"
+    ];
   };
 
   home = {

@@ -13,13 +13,13 @@ Multi-host Nix flake for the Avalanche (desktop), Aurora (laptop), Iceberg (VM),
 
 ## Host matrix
 
-| Host      | Platform                 | GPU profile | Notes |
-|-----------|--------------------------|-------------|-------|
-| Avalanche | x86_64 desktop           | `nvidia`    | RTX 5070 Ti + CUDA acceleration for Ollama. |
-| Aurora    | x86_64 laptop            | `intel`     | Laptop power tweaks (`tlp`, disabled `power-profiles-daemon`). |
-| Iceberg   | x86_64 VM                | `vm`        | Guest additions (`qemuGuest`, `spice-vdagentd`). |
-| Hailstone | aarch64 Raspberry Pi SBC | `none`      | Headless Pi node for lightweight Docker services + homelab sensors. |
-| Glacier   | aarch64-darwin           | —           | nix-darwin + Homebrew apps (Brave, Cursor, LM Studio, Ollama, VS Code). |
+| Host      | Platform                 | GPU profile | Notes                                                                                  |
+| --------- | ------------------------ | ----------- | -------------------------------------------------------------------------------------- |
+| Avalanche | x86_64 desktop           | `nvidia`    | RTX 5070 Ti + CUDA acceleration for Ollama.                                            |
+| Aurora    | x86_64 laptop            | `intel`     | Laptop power tweaks (`tlp`, disabled `power-profiles-daemon`).                         |
+| Iceberg   | x86_64 VM                | `vm`        | Guest additions (`qemuGuest`, `spice-vdagentd`).                                       |
+| Hailstone | aarch64 Raspberry Pi SBC | `none`      | Headless Pi node for lightweight Docker services + homelab sensors.                    |
+| Glacier   | aarch64-darwin           | —           | nix-darwin + Homebrew apps (Brave, VS Code; AI casks when `frostflake.ai` is enabled). |
 
 Linux hosts mount `/` via `fileSystems."/"` (currently pointing at `/dev/disk/by-label/nixos`). Update the device/fsType per machine before rebuilding.
 
@@ -55,7 +55,7 @@ $ sudo nixos-rebuild switch --flake .#Iceberg
 $ darwin-rebuild switch --flake .#Glacier
 ```
 
-For Glacier, nix-darwin handles CLI tooling, while GUI apps (Brave, Cursor, LM Studio, Ollama, VS Code) are installed via Homebrew casks declared in `hosts/common/darwin.nix`.
+For Glacier, nix-darwin handles CLI tooling, while GUI apps (Brave, VS Code, and—if enabled—Cursor, LM Studio, Ollama) are installed via Homebrew casks managed by `modules/system/ai.nix`.
 
 ## Secrets + automation
 
@@ -74,7 +74,7 @@ For Glacier, nix-darwin handles CLI tooling, while GUI apps (Brave, Cursor, LM S
 
 `modules/hardware/gpu.nix` exposes `hardware.gpu.profile = "nvidia" | "intel" | "vm" | "none"`. Each host imports the module and sets the profile, so swapping drivers is as simple as changing that string.
 
-Ollama’s acceleration is configured per host (`services.ollama.acceleration`). Avalanche uses `"cuda"` to match the RTX 5070 Ti; other machines leave it `false` for CPU-only inference. There is no separate `ollama-cuda` package—just flip the acceleration mode if the GPU supports CUDA/ROCm/Vulkan.
+AI tooling now lives in `modules/system/ai.nix` behind `frostflake.ai.enable` (default on x86_64 + macOS). Per-host acceleration is set via `frostflake.ai.ollama.acceleration` (e.g., `"cuda"`, `"rocm"`, or `false` for CPU-only). There is no separate `ollama-cuda` package—just flip the acceleration mode if the GPU supports CUDA/ROCm/Vulkan, or set `frostflake.ai.enable = false;` to drop AI services and apps entirely.
 
 ## Desktop selection
 
@@ -119,7 +119,7 @@ Each VM can be toggled individually with `enable = true/false`, made to autostar
 
 - Zsh with completions, autosuggestions, syntax highlighting, direnv hooks, and starship prompt (Nerdfonts are provisioned on both Linux and macOS).
 - Aliases for modern dir tooling (`eza`, `tree`), Git helpers, and NixOS workflows (`nixup`, `nixboot`, `nixdry`, `nclean`, etc.).
-- Common CLI packages: alejandra, direnv, eza, fd, ripgrep, glances, tree, starship, neovim, statix, deadnix, plus `rustup` so `cargo`/`rustc` are immediately available. Linux adds GUI apps (Brave, Cursor, LM Studio, Ollama, VS Code, GNOME Terminal); macOS installs the GUI set via Homebrew.
+- Common CLI packages: alejandra, direnv, eza, fd, ripgrep, glances, tree, starship, neovim, statix, deadnix, plus `rustup` so `cargo`/`rustc` are immediately available. Linux adds GUI apps (Brave, VS Code, GNOME Terminal) plus optional AI apps (Cursor, LM Studio, Ollama) when `frostflake.ai.enable` is true; macOS installs the base GUI set and adds the AI casks under the same switch.
 
 ## Microcontroller / embedded support
 
@@ -141,7 +141,7 @@ Each VM can be toggled individually with `enable = true/false`, made to autostar
 ## Customization checklist
 
 - **Root disks** – update `fileSystems."/"` in each host to reflect the real device/UUID.
-- **Drivers** – change `hardware.gpu.profile` (and, if needed, `services.ollama.acceleration`) to adopt a new GPU.
+- **Drivers** – change `hardware.gpu.profile` (and, if needed, `frostflake.ai.ollama.acceleration`) to adopt a new GPU, or disable all AI bits with `frostflake.ai.enable = false;`.
 - **Desktop** – pass `desktopProfile = "gnome" | "kde" | "xfce" | "cosmic"` (or `desktopEnable = false`) to `mkLinuxHost` when defining a host to choose the environment. Deepin was dropped from nixpkgs due to lack of maintenance.
 - **Packages** – extend `modules/system/linux-base.nix` or the Home Manager profiles for shared tooling.
 - **Secrets** – add host-specific modules or overlays for secrets; nothing sensitive is committed by default.

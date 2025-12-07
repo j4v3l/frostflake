@@ -29,8 +29,9 @@ in
       services = {
         qemuGuest.enable = true;
         spice-vdagentd.enable = true;
-        ollama.acceleration = lib.mkDefault false;
       };
+
+      frostflake.ai.ollama.acceleration = lib.mkDefault false;
 
       system.stateVersion = "25.11";
     };

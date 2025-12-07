@@ -9,6 +9,7 @@
 in {
   imports = [
     ../common/darwin.nix
+    ../../modules/system/ai.nix
     inputs.home-manager.darwinModules.home-manager
     inputs."sops-nix".darwinModules.sops
   ];

@@ -19,6 +19,7 @@
   };
   baseImports = [
     desktopModule
+    (frostflakeRoot + "/modules/system/ai.nix")
     (frostflakeRoot + "/modules/system/linux-base.nix")
     (frostflakeRoot + "/modules/system/security/webauthn.nix")
     (frostflakeRoot + "/modules/system/secrets.nix")
