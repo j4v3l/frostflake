@@ -108,7 +108,7 @@ in {
         mode = "0400";
       };
     };
-    sshAlgorithmsValue = lib.concatStringsSep " " cfg.ssh.allowedAlgorithms;
+    sshAlgorithmsValue = lib.concatStringsSep "," cfg.ssh.allowedAlgorithms;
     pcscPackages = [
       pkgs.libfido2
       pkgs.opensc
@@ -140,8 +140,8 @@ in {
 
       (mkIf cfg.ssh.hardwareOnly {
         services.openssh.settings = {
+          # Restrict user public keys to hardware-backed algorithms only.
           PubkeyAcceptedAlgorithms = sshAlgorithmsValue;
-          HostbasedAcceptedAlgorithms = sshAlgorithmsValue;
           AuthenticationMethods = cfg.ssh.authenticationMethods;
         };
       })
