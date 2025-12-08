@@ -337,59 +337,89 @@ in {
       enable = true;
       package = pkgs.vscode;
       mutableExtensionsDir = false;
-      extensions = with pkgs.vscode-extensions; [
-        jnoortheen.nix-ide
-        ms-python.python
-        ms-python.vscode-pylance
-        mkhl.direnv
-        charliermarsh.ruff
-        rust-lang.rust-analyzer
-      ];
-      userSettings = {
-        "editor.formatOnSave" = true;
-        "editor.fontFamily" = "JetBrainsMono Nerd Font, Menlo, Monaco, 'Courier New', monospace";
-        "editor.fontLigatures" = true;
-        "terminal.integrated.fontFamily" = "JetBrainsMono Nerd Font";
-
-        "[nix]" = {
+      profiles.default = {
+        extensions = with pkgs.vscode-extensions; [
+          jnoortheen.nix-ide
+          ms-python.python
+          ms-python.vscode-pylance
+          mkhl.direnv
+          charliermarsh.ruff
+          rust-lang.rust-analyzer
+        ];
+        userSettings = {
           "editor.formatOnSave" = true;
-          "editor.defaultFormatter" = "jnoortheen.nix-ide";
-        };
-        "nix.enableLanguageServer" = true;
-        "nix.serverPath" = "nixd";
-        "nix.formatterPath" = "alejandra";
-        "nix.serverSettings" = {
-          "nixd" = {
-            "formatting" = {
-              "command" = ["alejandra"];
-            };
-            # Use flake context when available; falls back safely when outside a flake.
-            "options" = {
-              "nixos" = {
-                "expr" = ''(builtins.getFlake (toString ./.)).nixosConfigurations or {}'';
+          "editor.fontFamily" = "JetBrainsMono Nerd Font, Menlo, Monaco, 'Courier New', monospace";
+          "editor.fontLigatures" = true;
+          "terminal.integrated.fontFamily" = "JetBrainsMono Nerd Font";
+
+          "[nix]" = {
+            "editor.formatOnSave" = true;
+            "editor.defaultFormatter" = "jnoortheen.nix-ide";
+          };
+          "nix.enableLanguageServer" = true;
+          "nix.serverPath" = "nixd";
+          "nix.formatterPath" = "alejandra";
+          "nix.serverSettings" = {
+            "nixd" = {
+              "formatting" = {
+                "command" = ["alejandra"];
+              };
+              "options" = let
+                flakePath = toString frostflakeRoot;
+              in {
+                # NixOS host options (env override NIXOS_HOST, else first host)
+                "nixos" = {
+                  "expr" = ''
+                    let
+                      flake = builtins.getFlake "${flakePath}";
+                      envHost = builtins.getEnv "NIXOS_HOST";
+                      host =
+                        if envHost != "" && flake.nixosConfigurations ? envHost
+                        then envHost
+                        else builtins.head (builtins.attrNames flake.nixosConfigurations);
+                    in (builtins.getAttr host flake.nixosConfigurations).options
+                  '';
+                };
+                # Home Manager options for the configured user
+                "home-manager" = {
+                  "expr" = ''(builtins.getFlake "${flakePath}").homeConfigurations.${frostflakeUser.username}.options'';
+                };
+                # nix-darwin options (env override NIX_DARWIN_HOST, else first)
+                "nix-darwin" = {
+                  "expr" = ''
+                    let
+                      flake = builtins.getFlake "${flakePath}";
+                      envHost = builtins.getEnv "NIX_DARWIN_HOST";
+                      host =
+                        if envHost != "" && flake.darwinConfigurations ? envHost
+                        then envHost
+                        else builtins.head (builtins.attrNames flake.darwinConfigurations);
+                    in (builtins.getAttr host flake.darwinConfigurations).options
+                  '';
+                };
               };
             };
           };
-        };
 
-        "[python]" = {
-          "editor.formatOnSave" = true;
-          "editor.defaultFormatter" = "charliermarsh.ruff";
-        };
-        "python.defaultInterpreterPath" = "python3";
-        "python.analysis.typeCheckingMode" = "basic";
-        "python.formatting.provider" = "none";
+          "[python]" = {
+            "editor.formatOnSave" = true;
+            "editor.defaultFormatter" = "charliermarsh.ruff";
+          };
+          "python.defaultInterpreterPath" = "python3";
+          "python.analysis.typeCheckingMode" = "basic";
+          "python.formatting.provider" = "none";
 
-        "[rust]" = {
-          "editor.formatOnSave" = true;
-          "editor.defaultFormatter" = "rust-lang.rust-analyzer";
-        };
-        "rust-analyzer.check.command" = "clippy";
-        "rust-analyzer.cargo.allFeatures" = true;
-        "rust-analyzer.procMacro.enable" = true;
+          "[rust]" = {
+            "editor.formatOnSave" = true;
+            "editor.defaultFormatter" = "rust-lang.rust-analyzer";
+          };
+          "rust-analyzer.check.command" = "clippy";
+          "rust-analyzer.cargo.allFeatures" = true;
+          "rust-analyzer.procMacro.enable" = true;
 
-        "direnv.path" = "direnv";
-        "direnv.restart.automatic" = true;
+          "direnv.path" = "direnv";
+          "direnv.restart.automatic" = true;
+        };
       };
     };
   };
