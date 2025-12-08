@@ -50,7 +50,6 @@
     glances
     nixd
     neovim
-    rust-analyzer
     ripgrep
     sops
     starship
