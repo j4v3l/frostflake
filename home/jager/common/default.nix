@@ -341,6 +341,7 @@ in {
         jnoortheen.nix-ide
         ms-python.python
         ms-python.vscode-pylance
+        mkhl.direnv
         charliermarsh.ruff
         rust-lang.rust-analyzer
       ];
@@ -362,6 +363,12 @@ in {
             "formatting" = {
               "command" = ["alejandra"];
             };
+            # Use flake context when available; falls back safely when outside a flake.
+            "options" = {
+              "nixos" = {
+                "expr" = ''(builtins.getFlake (toString ./.)).nixosConfigurations or {}'';
+              };
+            };
           };
         };
 
@@ -380,6 +387,9 @@ in {
         "rust-analyzer.check.command" = "clippy";
         "rust-analyzer.cargo.allFeatures" = true;
         "rust-analyzer.procMacro.enable" = true;
+
+        "direnv.path" = "direnv";
+        "direnv.restart.automatic" = true;
       };
     };
   };
