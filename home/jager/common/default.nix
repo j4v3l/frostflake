@@ -169,6 +169,8 @@ in {
     stateVersion = "24.11";
   };
 
+  home.file.".vscode/extensions/.keep".text = "";
+
   programs = {
     home-manager.enable = true;
     direnv = {
