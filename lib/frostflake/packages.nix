@@ -48,6 +48,7 @@
     eza
     fd
     glances
+    nil
     nixd
     neovim
     ripgrep

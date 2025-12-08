@@ -347,6 +347,8 @@ in {
       userSettings = {
         "editor.formatOnSave" = true;
         "editor.fontFamily" = "JetBrainsMono Nerd Font, Menlo, Monaco, 'Courier New', monospace";
+        "editor.fontLigatures" = true;
+        "terminal.integrated.fontFamily" = "JetBrainsMono Nerd Font";
 
         "[nix]" = {
           "editor.formatOnSave" = true;
