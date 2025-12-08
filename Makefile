@@ -5,6 +5,7 @@ SOPS_AGE_KEY_FILE ?= $(HOME)/.config/sops/age/keys.txt
 SOPS ?= sops
 AGE_KEYGEN ?= age-keygen
 FLAKE ?= .
+NIX ?= nix --extra-experimental-features "nix-command flakes"
 HOST ?=
 FILE ?=hosts/avalanche.yaml
 EDITOR ?= nvim
@@ -12,7 +13,7 @@ YUBI_CONFIG_DIR ?= $(HOME)/.config/Yubico
 U2F_KEYS_FILE ?= $(YUBI_CONFIG_DIR)/u2f_keys
 U2F_MAPPING_OUT ?= /tmp/u2f_mapping_$(USER)
 
-.PHONY: help age-key secret-host secret-edit secret-encrypt secret-decrypt secrets-verify fmt check switch build darwin devshell repl clean hooks lint yubi-pam-enroll yubi-ssh-key
+.PHONY: help age-key secret-host secret-edit secret-encrypt secret-decrypt secrets-verify fmt check switch build darwin dev devshell repl clean hooks lint yubi-pam-enroll yubi-ssh-key
 
 help:
 	@echo "Useful targets:"
@@ -26,7 +27,8 @@ help:
 	@echo "  make yubi-ssh-key                # generate hardware-backed ssh key (ed25519-sk)"
 	@echo "  make switch HOST=...             # nixos-rebuild switch --flake"
 	@echo "  make darwin HOST=...             # darwin-rebuild switch --flake"
-	@echo "  make fmt / check / lint          # formatting, flake check, pre-commit"
+	@echo "  make fmt / check / lint          # formatting, flake check, pre-commit (with nix-command + flakes)"
+	@echo "  make dev                         # enter dev shell (nix-command + flakes enabled)"
 
 age-key:
 	@mkdir -p "$(dir $(SOPS_AGE_KEY_FILE))"
@@ -84,13 +86,13 @@ hooks:
 	pre-commit install --hook-type pre-push
 
 lint:
-	nix develop "$(FLAKE)" -c pre-commit run --all-files
+	$(NIX) develop "$(FLAKE)" -c pre-commit run --all-files
 
 fmt:
-	nix fmt .
+	$(NIX) fmt .
 
 check:
-	nix flake check --impure
+	$(NIX) flake check --impure
 
 switch:
 	@test -n "$(HOST)" || { echo "Usage: make switch HOST=<flake output>" >&2; exit 1; }
@@ -101,10 +103,13 @@ build:
 	sudo nixos-rebuild build --flake "$(FLAKE)#$(HOST)"
 
 repl:
-	nix repl "$(FLAKE)"
+	$(NIX) repl "$(FLAKE)"
 
 devshell:
-	nix develop "$(FLAKE)"
+	$(NIX) develop "$(FLAKE)"
+
+dev:
+	$(NIX) develop "$(FLAKE)"
 
 darwin:
 	@test -n "$(HOST)" || { echo "Usage: make darwin HOST=Glacier" >&2; exit 1; }
