@@ -332,6 +332,54 @@ in {
         bind r source-file ~/.config/tmux/tmux.conf \; display-message "Frostflake tmux reloaded"
       '';
     };
+
+    vscode = {
+      enable = true;
+      package = pkgs.vscode;
+      mutableExtensionsDir = false;
+      extensions = with pkgs.vscode-extensions; [
+        jnoortheen.nix-ide
+        ms-python.python
+        ms-python.vscode-pylance
+        charliermarsh.ruff
+        rust-lang.rust-analyzer
+      ];
+      userSettings = {
+        "editor.formatOnSave" = true;
+        "editor.fontFamily" = "JetBrainsMono Nerd Font, Menlo, Monaco, 'Courier New', monospace";
+
+        "[nix]" = {
+          "editor.formatOnSave" = true;
+          "editor.defaultFormatter" = "jnoortheen.nix-ide";
+        };
+        "nix.enableLanguageServer" = true;
+        "nix.serverPath" = "nixd";
+        "nix.formatterPath" = "alejandra";
+        "nix.serverSettings" = {
+          "nixd" = {
+            "formatting" = {
+              "command" = ["alejandra"];
+            };
+          };
+        };
+
+        "[python]" = {
+          "editor.formatOnSave" = true;
+          "editor.defaultFormatter" = "charliermarsh.ruff";
+        };
+        "python.defaultInterpreterPath" = "python3";
+        "python.analysis.typeCheckingMode" = "basic";
+        "python.formatting.provider" = "none";
+
+        "[rust]" = {
+          "editor.formatOnSave" = true;
+          "editor.defaultFormatter" = "rust-lang.rust-analyzer";
+        };
+        "rust-analyzer.check.command" = "clippy";
+        "rust-analyzer.cargo.allFeatures" = true;
+        "rust-analyzer.procMacro.enable" = true;
+      };
+    };
   };
 
   fonts.fontconfig.enable = lib.mkDefault (!isDarwin);

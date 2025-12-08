@@ -48,11 +48,15 @@
     eza
     fd
     glances
+    nixd
     neovim
+    rust-analyzer
     ripgrep
     sops
     starship
     statix
+    uv
+    ruff
     tree
   ];
 
