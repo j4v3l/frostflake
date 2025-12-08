@@ -339,15 +339,22 @@ in {
       enable = true;
       package = pkgs.vscode;
       mutableExtensionsDir = true;
-      profiles.default = {
-        extensions = with pkgs.vscode-extensions; [
-          jnoortheen.nix-ide
-          ms-python.python
-          ms-python.vscode-pylance
-          mkhl.direnv
-          charliermarsh.ruff
-          rust-lang.rust-analyzer
-        ];
+      profiles.default = let
+        nixExtensionPack =
+          if pkgs.vscode-extensions ? pinage404
+          then pkgs.vscode-extensions.pinage404."nix-extension-pack" or null
+          else null;
+      in {
+        extensions =
+          (with pkgs.vscode-extensions; [
+            jnoortheen.nix-ide
+            ms-python.python
+            ms-python.vscode-pylance
+            mkhl.direnv
+            charliermarsh.ruff
+            rust-lang.rust-analyzer
+          ])
+          ++ lib.optional (nixExtensionPack != null) nixExtensionPack;
         userSettings = {
           "editor.formatOnSave" = true;
           "editor.fontFamily" = "JetBrainsMono Nerd Font, Menlo, Monaco, 'Courier New', monospace";
