@@ -48,6 +48,8 @@
     eza
     fd
     glances
+    ghostty
+    kitty
     nil
     nixd
     neovim

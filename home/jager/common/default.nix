@@ -436,6 +436,18 @@ in {
   fonts.fontconfig.enable = lib.mkDefault (!isDarwin);
   xdg = {
     enable = lib.mkDefault (!isDarwin);
-    configFile."starship.toml".source = ./starship.toml;
+    configFile = {
+      "starship.toml".source = ./starship.toml;
+
+      "kitty/kitty.conf".source = ./kitty/kitty.conf;
+      "kitty/theme.conf".source = ./kitty/theme.conf;
+      "kitty/themes/frostflake-dark.conf".source = ./kitty/themes/frostflake-dark.conf;
+      "kitty/themes/frostflake-light.conf".source = ./kitty/themes/frostflake-light.conf;
+
+      "ghostty/config".source = ./ghostty/config;
+      "ghostty/config.light".source = ./ghostty/config.light;
+      "ghostty/themes/frostflake-dark".source = ./ghostty/themes/frostflake-dark;
+      "ghostty/themes/frostflake-light".source = ./ghostty/themes/frostflake-light;
+    };
   };
 }

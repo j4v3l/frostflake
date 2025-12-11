@@ -1,0 +1,23 @@
+# Frostflake light palette aligned with starship prompt colors
+background = #f7f9fc
+foreground = #1d2230
+cursor-color = #2f5783
+selection-background = #d8e3f4
+selection-foreground = #1d2230
+
+palette = 0=#1d2230
+palette = 1=#d14a2a
+palette = 2=#3d8f6a
+palette = 3=#b8842a
+palette = 4=#2f5783
+palette = 5=#7e4f9f
+palette = 6=#2e8aa7
+palette = 7=#f2f2f2
+palette = 8=#3b6aa1
+palette = 9=#eb4d28
+palette = 10=#51b485
+palette = 11=#d1a23f
+palette = 12=#769ff0
+palette = 13=#a576d6
+palette = 14=#5fbcd6
+palette = 15=#ffffff

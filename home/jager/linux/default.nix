@@ -1,30 +1,68 @@
 {lib, ...}: let
-  frostflakeProfile = "c2c8a1f6-7b7f-42d0-8464-55b91dd6276a";
-  frostflakeProfileKey = "org/gnome/terminal/legacy/profiles:/:${frostflakeProfile}";
-  catppuccinPalette = [
-    "#1E1E2E"
-    "#F38BA8"
-    "#A6E3A1"
-    "#F9E2AF"
-    "#89B4FA"
-    "#CBA6F7"
-    "#94E2D5"
-    "#BAC2DE"
-    "#45475A"
-    "#F38BA8"
-    "#A6E3A1"
-    "#F9E2AF"
-    "#89B4FA"
-    "#CBA6F7"
-    "#94E2D5"
-    "#A6ADC8"
+  frostflakeProfileDark = "c2c8a1f6-7b7f-42d0-8464-55b91dd6276a";
+  frostflakeProfileLight = "7c7a7c31-6f2d-46b7-aef8-4a84c9e7d807";
+  frostflakeProfileDarkKey = "org/gnome/terminal/legacy/profiles:/:${frostflakeProfileDark}";
+  frostflakeProfileLightKey = "org/gnome/terminal/legacy/profiles:/:${frostflakeProfileLight}";
+
+  frostflakePaletteDark = [
+    "#232f44"
+    "#eb4d28"
+    "#6fbf8f"
+    "#e3c27a"
+    "#769ff0"
+    "#c79df4"
+    "#66c2d6"
+    "#f2f2f2"
+    "#2f5783"
+    "#f06b4a"
+    "#8fd7a8"
+    "#f2d49b"
+    "#a4c4ff"
+    "#e1c2ff"
+    "#8ad7e7"
+    "#ffffff"
   ];
+
+  frostflakePaletteLight = [
+    "#1d2230"
+    "#d14a2a"
+    "#3d8f6a"
+    "#b8842a"
+    "#2f5783"
+    "#7e4f9f"
+    "#2e8aa7"
+    "#f2f2f2"
+    "#3b6aa1"
+    "#eb4d28"
+    "#51b485"
+    "#d1a23f"
+    "#769ff0"
+    "#a576d6"
+    "#5fbcd6"
+    "#ffffff"
+  ];
+
+  frostflakeDark = {
+    background = "#1d2230";
+    foreground = "#f2f2f2";
+    cursorBg = "#769ff0";
+    cursorFg = "#1d2230";
+    bold = "#f06b4a";
+  };
+
+  frostflakeLight = {
+    background = "#f7f9fc";
+    foreground = "#1d2230";
+    cursorBg = "#2f5783";
+    cursorFg = "#f7f9fc";
+    bold = "#d14a2a";
+  };
 in {
   imports = [../common/default.nix];
 
   dconf.settings = {
     "org/gnome/desktop/interface" = {
-      color-scheme = "prefer-dark";
+      color-scheme = "default";
       clock-format = "12h";
       show-battery-percentage = true;
       cursor-theme = "Adwaita";
@@ -34,22 +72,48 @@ in {
       button-layout = "appmenu:minimize,maximize,close";
     };
     "org/gnome/terminal/legacy/profiles:" = {
-      default = frostflakeProfile;
-      list = [frostflakeProfile];
+      default = frostflakeProfileDark;
+      list = [
+        frostflakeProfileDark
+        frostflakeProfileLight
+      ];
     };
-    ${frostflakeProfileKey} = {
-      visible-name = "Frostflake";
-      palette = catppuccinPalette;
-      background-color = "#11111B";
-      foreground-color = "#CDD6F4";
-      bold-color = "#F38BA8";
+    ${frostflakeProfileDarkKey} = {
+      visible-name = "Frostflake Dark";
+      palette = frostflakePaletteDark;
+      background-color = frostflakeDark.background;
+      foreground-color = frostflakeDark.foreground;
+      bold-color = frostflakeDark.bold;
       bold-color-same-as-fg = false;
       use-theme-colors = false;
       use-system-font = false;
       font = "JetBrainsMono Nerd Font 12";
       cursor-colors-set = true;
-      cursor-background-color = "#CBA6F7";
-      cursor-foreground-color = "#1E1E2E";
+      cursor-background-color = frostflakeDark.cursorBg;
+      cursor-foreground-color = frostflakeDark.cursorFg;
+      cursor-blink-mode = "on";
+      cursor-shape = "underline";
+      use-custom-command = false;
+      scrollbar-policy = "never";
+      audible-bell = false;
+      allow-bold = true;
+      default-size-columns = 110;
+      default-size-rows = 30;
+    };
+
+    ${frostflakeProfileLightKey} = {
+      visible-name = "Frostflake Light";
+      palette = frostflakePaletteLight;
+      background-color = frostflakeLight.background;
+      foreground-color = frostflakeLight.foreground;
+      bold-color = frostflakeLight.bold;
+      bold-color-same-as-fg = false;
+      use-theme-colors = false;
+      use-system-font = false;
+      font = "JetBrainsMono Nerd Font 12";
+      cursor-colors-set = true;
+      cursor-background-color = frostflakeLight.cursorBg;
+      cursor-foreground-color = frostflakeLight.cursorFg;
       cursor-blink-mode = "on";
       cursor-shape = "underline";
       use-custom-command = false;

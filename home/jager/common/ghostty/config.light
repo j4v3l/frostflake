@@ -1,0 +1,6 @@
+# Frostflake ghostty configuration (light preset)
+font-family = "JetBrainsMono Nerd Font"
+font-size = 12
+cursor-style = underline
+bold-is-bright = true
+theme = frostflake-light
