@@ -13,7 +13,7 @@ YUBI_CONFIG_DIR ?= $(HOME)/.config/Yubico
 U2F_KEYS_FILE ?= $(YUBI_CONFIG_DIR)/u2f_keys
 U2F_MAPPING_OUT ?= /tmp/u2f_mapping_$(USER)
 
-.PHONY: help age-key secret-host secret-edit secret-encrypt secret-decrypt secret-encrypt-all secret-decrypt-all secrets-verify fmt check switch build darwin dev devshell repl clean hooks lint yubi-pam-enroll yubi-ssh-key
+.PHONY: help age-key secret-host secret-edit secret-encrypt secret-decrypt secret-encrypt-all secret-decrypt-all regen-hardware switch-hw secrets-verify fmt check switch build darwin dev devshell repl clean hooks lint yubi-pam-enroll yubi-ssh-key
 
 help:
 	@echo "Useful targets:"
@@ -24,6 +24,8 @@ help:
 	@echo "  make secret-decrypt [FILE=...]   # decrypt secrets/<FILE> or all *.yaml under secrets/"
 	@echo "  make secret-encrypt-all          # encrypt every *.yaml under secrets/"
 	@echo "  make secret-decrypt-all          # decrypt every *.yaml under secrets/"
+	@echo "  make regen-hardware HOST=...     # regenerate hosts/<HOST>/hardware-configuration.nix"
+	@echo "  make switch-hw HOST=...          # regen hardware config, then nixos-rebuild switch"
 	@echo "  make secrets-verify              # verify all *.yaml secrets with sops"
 	@echo "  make yubi-pam-enroll             # enroll YubiKey for pam_u2f; writes $(U2F_MAPPING_OUT)"
 	@echo "  make yubi-ssh-key                # generate hardware-backed ssh key (ed25519-sk)"
@@ -74,6 +76,14 @@ secret-decrypt-all:
 	 if [ -z "$$FILES" ]; then echo "[decrypt] no secrets found"; exit 0; fi; \
 	 echo "[decrypt] files: $$FILES"; \
 	 for f in $$FILES; do $(SOPS) --decrypt --in-place "$$f"; done
+
+regen-hardware:
+	@test -n "$(HOST)" || { echo "Usage: make regen-hardware HOST=<host>" >&2; exit 1; }
+	@nixos-generate-config --show-hardware-config > "hosts/$(HOST)/hardware-configuration.nix"
+
+switch-hw: regen-hardware
+	@test -n "$(HOST)" || { echo "Usage: make switch-hw HOST=<flake output>" >&2; exit 1; }
+	sudo nixos-rebuild switch --flake "$(FLAKE)#$(HOST)"
 
 secrets-verify:
 	@find secrets -name '*.yaml' -print0 | xargs -0 -r $(SOPS) --verify
