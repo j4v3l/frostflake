@@ -29,5 +29,11 @@ in {
     users.${user.username} = import ../../home/jager/darwin/default.nix;
   };
 
+  frostflake.ai = {
+    enable = false;
+    packages.enable = false;
+    ollama.enable = false;
+  };
+
   system.stateVersion = 5;
 }

@@ -31,7 +31,11 @@ in
         spice-vdagentd.enable = true;
       };
 
-      frostflake.ai.ollama.acceleration = lib.mkDefault false;
+      frostflake.ai = {
+        enable = false;
+        packages.enable = false;
+        ollama.enable = false;
+      };
 
       system.stateVersion = "25.11";
     };

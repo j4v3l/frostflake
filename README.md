@@ -60,21 +60,21 @@ For Glacier, nix-darwin handles CLI tooling, while GUI apps (Brave, VS Code, and
 ## Secrets + automation
 
 - Secrets are managed with sops-nix + Age. Read `docs/secrets.md` for the full
-	workflow (Age key generation, recipient rotation, and provisioning the
-	`pam_u2f_mappings` file without committing plaintext).
+ workflow (Age key generation, recipient rotation, and provisioning the
+ `pam_u2f_mappings` file without committing plaintext).
 - A repo-level `Makefile` wraps the common flows:
-	- `make age-key` – generate/print the Age key referenced by `SOPS_AGE_KEY_FILE`.
-	- `make secret-host HOST=<name>` – edit `secrets/hosts/<name>.yaml` via `sops`.
-	- `make secret-edit FILE=shared.yaml` – edit any file under `secrets/`.
-	- `make secrets-verify` – ensure every encrypted file is valid.
-	- `make switch HOST=<flake>` / `make darwin HOST=Glacier` – rebuild hosts.
-	- `make fmt` / `make check` – format + run `nix flake check`.
+  - `make age-key` – generate/print the Age key referenced by `SOPS_AGE_KEY_FILE`.
+  - `make secret-host HOST=<name>` – edit `secrets/hosts/<name>.yaml` via `sops`.
+  - `make secret-edit FILE=shared.yaml` – edit any file under `secrets/`.
+  - `make secrets-verify` – ensure every encrypted file is valid.
+  - `make switch HOST=<flake>` / `make darwin HOST=Glacier` – rebuild hosts.
+  - `make fmt` / `make check` – format + run `nix flake check`.
 
 ## GPU + acceleration controls
 
 `modules/hardware/gpu.nix` exposes `hardware.gpu.profile = "nvidia" | "intel" | "vm" | "none"`. Each host imports the module and sets the profile, so swapping drivers is as simple as changing that string.
 
-AI tooling now lives in `modules/system/ai.nix` behind `frostflake.ai.enable` (default on x86_64 + macOS). Per-host acceleration is set via `frostflake.ai.ollama.acceleration` (e.g., `"cuda"`, `"rocm"`, or `false` for CPU-only). There is no separate `ollama-cuda` package—just flip the acceleration mode if the GPU supports CUDA/ROCm/Vulkan, or set `frostflake.ai.enable = false;` to drop AI services and apps entirely.
+AI tooling now lives in `modules/system/ai.nix` behind `frostflake.ai.enable` (opt-in per host—Avalanche turns it on, laptops stay off). Per-host acceleration is set via `frostflake.ai.ollama.acceleration` (e.g., `"cuda"`, `"rocm"`, or `false` for CPU-only). There is no separate `ollama-cuda` package—just flip the acceleration mode if the GPU supports CUDA/ROCm/Vulkan, or set `frostflake.ai.enable = false;` to drop AI services and apps entirely.
 
 ## Desktop selection
 
@@ -82,9 +82,9 @@ AI tooling now lives in `modules/system/ai.nix` behind `frostflake.ai.enable` (d
 
 ```nix
 mkLinuxHost {
-	# …standard args…
-	desktopProfile = "kde";   # Avalanche uses "gnome", Iceberg "xfce", etc.
-	desktopEnable = true;      # `false` keeps Hailstone headless
+ # …standard args…
+ desktopProfile = "kde";   # Avalanche uses "gnome", Iceberg "xfce", etc.
+ desktopEnable = true;      # `false` keeps Hailstone headless
 }
 ```
 
@@ -96,20 +96,20 @@ Avalanche sticks with GNOME, Aurora requests KDE, Iceberg prefers XFCE, and Hail
 
 ```nix
 services.vmManager = {
-	enable = true;
-	virtualMachines = {
-		"win11-dev" = {
-			description = "Windows preview box";
-			memoryMiB = 8192;
-			vcpus = 4;
-			autostart = false;
-			disks = [
-				{ path = "/var/lib/libvirt/images/win11.qcow2"; format = "qcow2"; }
-				{ path = "/var/lib/libvirt/iso/Win11.iso"; device = "cdrom"; format = "raw"; }
-			];
-			networks = [{ source = "default"; }];
-		};
-	};
+ enable = true;
+ virtualMachines = {
+  "win11-dev" = {
+   description = "Windows preview box";
+   memoryMiB = 8192;
+   vcpus = 4;
+   autostart = false;
+   disks = [
+    { path = "/var/lib/libvirt/images/win11.qcow2"; format = "qcow2"; }
+    { path = "/var/lib/libvirt/iso/Win11.iso"; device = "cdrom"; format = "raw"; }
+   ];
+   networks = [{ source = "default"; }];
+  };
+ };
 };
 ```
 
@@ -119,7 +119,7 @@ Each VM can be toggled individually with `enable = true/false`, made to autostar
 
 - Zsh with completions, autosuggestions, syntax highlighting, direnv hooks, and starship prompt (Nerdfonts are provisioned on both Linux and macOS).
 - Aliases for modern dir tooling (`eza`, `tree`), Git helpers, and NixOS workflows (`nixup`, `nixboot`, `nixdry`, `nclean`, etc.).
-- Common CLI packages: alejandra, direnv, eza, fd, ripgrep, glances, tree, starship, neovim, statix, deadnix, plus `rustup` so `cargo`/`rustc` are immediately available. Linux adds GUI apps (Brave, VS Code, GNOME Terminal) plus optional AI apps (Cursor, LM Studio, Ollama) when `frostflake.ai.enable` is true; macOS installs the base GUI set and adds the AI casks under the same switch.
+- Common CLI packages: alejandra, direnv, eza, fd, ripgrep, glances, tree, starship, neovim, statix, deadnix, plus `rustup` so `cargo`/`rustc` are immediately available. Linux adds GUI apps (Brave, VS Code, GNOME Terminal) and, when enabled per host, AI apps (Cursor, LM Studio, Ollama); macOS installs the base GUI set and adds the AI casks only when that switch is on.
 
 ## Microcontroller / embedded support
 
@@ -127,9 +127,11 @@ Each VM can be toggled individually with `enable = true/false`, made to autostar
 - The shared Home Manager profile installs the same tooling on both Linux and macOS, so `arduino-cli`, `pio`, `esptool.py`, `espflash`, and `espup` are always on `$PATH`.
 - Linux hosts include the toolchain system-wide, enable `programs.avrdude`, and add the `jager` user to `dialout`, `uucp`, and `plugdev` for serial/USB access.
 - Typical flow:
-	1. `nix develop`
-	2. `arduino-cli core install esp32:esp32`, `pio pkg install`, or `espup install-latest` for your board support package + ESP-IDF toolchains (Rust components onboard thanks to `rustup`).
-	3. `pio run -t upload` or `arduino-cli upload -p /dev/ttyUSB0 --fqbn esp32:esp32:esp32`.
+
+ 1. `nix develop`
+ 2. `arduino-cli core install esp32:esp32`, `pio pkg install`, or `espup install-latest` for your board support package + ESP-IDF toolchains (Rust components onboard thanks to `rustup`).
+ 3. `pio run -t upload` or `arduino-cli upload -p /dev/ttyUSB0 --fqbn esp32:esp32:esp32`.
+
 - `picocom -b 115200 /dev/ttyUSB0` (or `screen`) is ready for serial monitoring; use `dfu-util`, `esptool.py`, or `espflash`/`espup` for low-level flashing and ESP-IDF management when PlatformIO isn’t in play.
 
 ## PD400X microphone

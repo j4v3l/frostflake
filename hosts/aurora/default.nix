@@ -36,7 +36,11 @@ in
         fprintd.enable = true;
       };
 
-      frostflake.ai.ollama.acceleration = lib.mkDefault false;
+      frostflake.ai = {
+        enable = false;
+        packages.enable = false;
+        ollama.enable = false;
+      };
 
       # Container and VM definitions now live in ./containers.nix and ./virtual-machines.nix
 

@@ -28,7 +28,8 @@ in {
     enable =
       mkEnableOption "AI tooling (Ollama + desktop apps)"
       // {
-        default = pkgs.stdenv.hostPlatform.isx86_64 || isDarwin;
+        # Opt-in per host so laptops/headless nodes don't inherit Avalanche's AI stack.
+        default = false;
       };
 
     packages = {
