@@ -13,7 +13,7 @@ YUBI_CONFIG_DIR ?= $(HOME)/.config/Yubico
 U2F_KEYS_FILE ?= $(YUBI_CONFIG_DIR)/u2f_keys
 U2F_MAPPING_OUT ?= /tmp/u2f_mapping_$(USER)
 
-.PHONY: help age-key secret-host secret-edit secret-encrypt secret-decrypt secrets-verify fmt check switch build darwin dev devshell repl clean hooks lint yubi-pam-enroll yubi-ssh-key
+.PHONY: help age-key secret-host secret-edit secret-encrypt secret-decrypt secret-encrypt-all secret-decrypt-all secrets-verify fmt check switch build darwin dev devshell repl clean hooks lint yubi-pam-enroll yubi-ssh-key
 
 help:
 	@echo "Useful targets:"
@@ -22,6 +22,8 @@ help:
 	@echo "  make secret-edit FILE=...        # edit secrets/<FILE> via sops"
 	@echo "  make secret-encrypt [FILE=...]   # encrypt secrets/<FILE> or all *.yaml under secrets/"
 	@echo "  make secret-decrypt [FILE=...]   # decrypt secrets/<FILE> or all *.yaml under secrets/"
+	@echo "  make secret-encrypt-all          # encrypt every *.yaml under secrets/"
+	@echo "  make secret-decrypt-all          # decrypt every *.yaml under secrets/"
 	@echo "  make secrets-verify              # verify all *.yaml secrets with sops"
 	@echo "  make yubi-pam-enroll             # enroll YubiKey for pam_u2f; writes $(U2F_MAPPING_OUT)"
 	@echo "  make yubi-ssh-key                # generate hardware-backed ssh key (ed25519-sk)"
@@ -55,9 +57,21 @@ secret-encrypt:
 	 echo "[encrypt] files: $$FILES"; \
 	 for f in $$FILES; do $(SOPS) --encrypt --in-place "$$f"; done
 
+secret-encrypt-all:
+	@FILES=$$(find secrets -type f -name '*.yaml'); \
+	 if [ -z "$$FILES" ]; then echo "[encrypt] no secrets found"; exit 0; fi; \
+	 echo "[encrypt] files: $$FILES"; \
+	 for f in $$FILES; do $(SOPS) --encrypt --in-place "$$f"; done
+
 secret-decrypt:
 	@FILES=$${FILE:+secrets/$$FILE}; \
 	 if [ -z "$$FILES" ]; then FILES=$$(find secrets -type f -name '*.yaml'); fi; \
+	 echo "[decrypt] files: $$FILES"; \
+	 for f in $$FILES; do $(SOPS) --decrypt --in-place "$$f"; done
+
+secret-decrypt-all:
+	@FILES=$$(find secrets -type f -name '*.yaml'); \
+	 if [ -z "$$FILES" ]; then echo "[decrypt] no secrets found"; exit 0; fi; \
 	 echo "[decrypt] files: $$FILES"; \
 	 for f in $$FILES; do $(SOPS) --decrypt --in-place "$$f"; done
 

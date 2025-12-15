@@ -3,14 +3,17 @@
 # loudly until you replace it. See docs/secrets.md for the full workflow.
 keys:
   - &operator "age15m5gyqvq4qckc7u073gnckpdnx24pcvnet5juk486ck5amrzgfkqe6k4sh"
+  - &jager "age1pjaent3hhtkp8wmqdg5268fdf2hgqn77u42apxglwsdhzalzx39ql3ggxv"
 
 creation_rules:
   - path_regex: ^secrets/shared\.ya?ml$
     key_groups:
       - age:
+          - *jager
           - *operator
 
   - path_regex: ^secrets/hosts/[^/]+\.ya?ml$
     key_groups:
       - age:
+          - *jager
           - *operator
