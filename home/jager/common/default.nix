@@ -356,12 +356,14 @@ in {
       in {
         extensions =
           (with pkgs.vscode-extensions; [
+            github.github-vscode-theme
             jnoortheen.nix-ide
             ms-python.python
             ms-python.vscode-pylance
             mkhl.direnv
             charliermarsh.ruff
             rust-lang.rust-analyzer
+            pkief.material-icon-theme
           ])
           ++ lib.optional (nixExtensionPack != null) nixExtensionPack;
         userSettings = {
@@ -369,6 +371,8 @@ in {
           "editor.fontFamily" = "JetBrainsMono Nerd Font, Menlo, Monaco, 'Courier New', monospace";
           "editor.fontLigatures" = true;
           "terminal.integrated.fontFamily" = "JetBrainsMono Nerd Font";
+          "workbench.colorTheme" = "GitHub Dark Default";
+          "workbench.iconTheme" = "material-icon-theme";
 
           "[nix]" = {
             "editor.formatOnSave" = true;
