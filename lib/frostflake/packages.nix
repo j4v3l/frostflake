@@ -3,6 +3,7 @@
   lib,
 }: let
   inherit (lib.lists) unique;
+
   embeddedTools = with pkgs; [
     arduino-cli
     avrdude
@@ -17,50 +18,62 @@
     rustup
   ];
 
-  systemCliBase = with pkgs; [
-    age
-    bat
-    direnv
-    eza
-    git
-    glances
-    age-plugin-yubikey
-    nix-direnv
-    pciutils
-    ripgrep
-    sops
-    tree
-    unzip
-    vim
-    wget
-    lazygit
-    tmux
-  ];
+  # nordvpn exists only on x86_64-linux; guard to keep other systems evaluable.
+  nordvpnPkg =
+    if pkgs ? nordvpn
+    then [pkgs.nordvpn]
+    else [];
 
-  homeCliBase = with pkgs; [
-    age
-    age-plugin-yubikey
-    alejandra
-    bat
-    btop
-    deadnix
-    direnv
-    eza
-    fd
-    glances
-    ghostty
-    kitty
-    nil
-    nixd
-    neovim
-    ripgrep
-    sops
-    starship
-    statix
-    uv
-    ruff
-    tree
-  ];
+  systemCliBase = with pkgs;
+    [
+      age
+      bat
+      direnv
+      eza
+      tailscale
+      wireguard-tools
+      git
+      glances
+      age-plugin-yubikey
+      nix-direnv
+      pciutils
+      ripgrep
+      sops
+      tree
+      unzip
+      vim
+      wget
+      lazygit
+      tmux
+    ]
+    ++ nordvpnPkg;
+
+  homeCliBase = with pkgs;
+    [
+      age
+      age-plugin-yubikey
+      alejandra
+      bat
+      btop
+      deadnix
+      direnv
+      eza
+      fd
+      glances
+      ghostty
+      kitty
+      nil
+      nixd
+      neovim
+      ripgrep
+      sops
+      starship
+      statix
+      uv
+      ruff
+      tree
+    ]
+    ++ nordvpnPkg;
 
   lintingTools = with pkgs; [
     alejandra
@@ -89,11 +102,14 @@
   homeDesktopLinux =
     if pkgs.stdenv.hostPlatform.isx86_64
     then
-      with pkgs; [
+      (with pkgs; [
         brave
         gnome-terminal
+        tailscale
+        wireguard-tools
         vscode
-      ]
+      ])
+      ++ nordvpnPkg
     else [];
 
   aiDesktopApps =

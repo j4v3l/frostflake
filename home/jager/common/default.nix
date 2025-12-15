@@ -272,6 +272,15 @@ in {
           tmn = "tmux new -s";
           tmk = "tmux kill-session -t";
           tmf = "tmux attach -t frostflake || tmux new -s frostflake";
+          ts-up = "sudo tailscale up";
+          ts-down = "sudo tailscale down";
+          ts-status = "tailscale status";
+          wg-up = "iface=\"$WG_IFACE\"; [ -n \"$iface\" ] || iface=wg0; sudo wg-quick up \"$iface\"";
+          wg-down = "iface=\"$WG_IFACE\"; [ -n \"$iface\" ] || iface=wg0; sudo wg-quick down \"$iface\"";
+          nvpn = "nordvpn";
+          nvpn-status = "nordvpn status";
+          nvpn-connect = "if [ -n \"$NORD_REGION\" ]; then nordvpn connect \"$NORD_REGION\"; else nordvpn connect; fi";
+          nvpn-disconnect = "nordvpn disconnect";
         }
         (lib.mkIf (!isDarwin) {
           nixup = "sudo nixos-rebuild switch --flake ${defaultFlakeRef}#\$(hostname)";
