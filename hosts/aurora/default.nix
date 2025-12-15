@@ -32,6 +32,14 @@ in
         fprintd.enable = true;
       };
 
+      # Allow plain password auth during initial bring-up; disable WebAuthn/PAM U2F on this host.
+      frostflake.security.webauthn.enable = false;
+      security.pam.services = {
+        login.u2fAuth = lib.mkForce false;
+        sddm.u2fAuth = lib.mkForce false;
+        "sddm-autologin".u2fAuth = lib.mkForce false;
+      };
+
       frostflake.ai = {
         enable = false;
         packages.enable = false;
@@ -39,14 +47,6 @@ in
       };
 
       # Container and VM definitions now live in ./containers.nix and ./virtual-machines.nix
-
-      security.pam = {
-        services = {
-          sudo.fprintAuth = true;
-          login.fprintAuth = lib.mkForce true;
-          "gdm-password".fprintAuth = true;
-        };
-      };
 
       system.stateVersion = "25.11";
     };
