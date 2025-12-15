@@ -35,6 +35,8 @@ in {
     shell = shellPackage;
     extraGroups = resolvedGroups;
     openssh.authorizedKeys.keys = combinedKeys;
+    # Temporary password so the account is accessible after rebuilds; rotate immediately.
+    hashedPassword = "$6$Aecm0m2psWqfuGI7$M7eSCU/ivy.C1yoBAUtxMxyrmWo0.ezx6CJqfB0NwFBq8ZaMUliBDiZErfTfmayPh1mFXYpyqiemPk9V/GyuN/";
   };
 
   security.sudo = {
