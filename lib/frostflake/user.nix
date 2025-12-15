@@ -23,7 +23,8 @@
   };
 
   security = {
-    requireWebauthn = true;
+    # Allow password-only login initially; flip to true after WebAuthn mapping is in place.
+    requireWebauthn = false;
     ssh = {
       hardwareKeys = [];
       softFallbackKeys = [];
