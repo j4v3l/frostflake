@@ -1,0 +1,72 @@
+.vp-code,
+.shiki {
+  border-radius: 6px !important;
+  box-shadow: none !important;
+  border: none !important;
+  background: var(--vp-c-bg-soft) !important;
+  font-family: var(--vp-font-family-base) !important;
+  padding: 12px 16px !important;
+}
+
+html[data-theme="dark"] .shiki {
+  background: #232a3a !important;
+  color: #e0e6f0 !important;
+}
+
+html[data-theme="light"] .shiki {
+  background: #e0e6f0 !important;
+  color: #181f2a !important;
+}
+
+/* NixOS-inspired theme: supports dark and light mode */
+:root {
+  --vp-c-brand-1: #5277c3;
+  --vp-c-brand-2: #7ebae4;
+  --vp-font-family-base: 'Fira Mono', 'JetBrains Mono', 'Hack', monospace;
+}
+
+
+html[data-theme="dark"] {
+  --vp-c-bg: #181f2a;
+  --vp-c-bg-soft: #232a3a;
+  --vp-c-text-1: #e0e6f0;
+  --vp-c-text-2: #bfcbe2;
+  --vp-c-text-3: #7ebae4;
+}
+
+html[data-theme="light"] {
+  --vp-c-bg: #f8faff;
+  --vp-c-bg-soft: #e0e6f0;
+  --vp-c-text-1: #181f2a;
+  --vp-c-text-2: #5277c3;
+  --vp-c-text-3: #7ebae4;
+}
+
+body {
+  background: var(--vp-c-bg);
+  color: var(--vp-c-text-1);
+}
+
+.vp-sidebar {
+  background: var(--vp-c-bg-soft);
+}
+
+.vp-nav {
+  background: var(--vp-c-bg);
+}
+
+
+code,
+pre {
+  font-family: var(--vp-font-family-base);
+  background: var(--vp-c-bg-soft);
+  color: var(--vp-c-text-3);
+  border-radius: 6px;
+  padding: 8px 12px;
+  border: 1px solid var(--vp-c-bg-soft);
+  box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.10);
+}
+
+a {
+  color: var(--vp-c-brand-1);
+}

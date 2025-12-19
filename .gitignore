@@ -3,3 +3,14 @@
 result
 .nix-result
 *.swp
+
+# VitePress build and cache
+docs/vitepress/docs/.vitepress/cache/
+docs/vitepress/docs/.vitepress/dist/
+
+# Node modules
+node_modules/
+docs/vitepress/node_modules/
+
+# VitePress temp files
+.vitepress-temp/

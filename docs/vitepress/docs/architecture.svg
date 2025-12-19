@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" width="100%" height="auto">
+<style>
+  .frost-box { fill: #232a3a; stroke: #5277c3; stroke-width: 3; rx: 16; }
+  .frost-label { font-family: 'Fira Mono', 'JetBrains Mono', 'Hack', monospace; font-size: 28px; fill: #e0e6f0; }
+  .frost-sub { font-size: 20px; fill: #7ebae4; }
+  .frost-arrow { stroke: #7ebae4; stroke-width: 4; marker-end: url(#arrowhead); }
+</style>
+<defs>
+  <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+    <polygon points="0 0, 10 3.5, 0 7" fill="#7ebae4" />
+  </marker>
+</defs>
+<!-- Hosts -->
+<rect class="frost-box" x="60" y="60" width="220" height="120"/>
+<text class="frost-label" x="170" y="120" text-anchor="middle">Hosts</text>
+<text class="frost-sub" x="170" y="150" text-anchor="middle">Avalanche, Aurora, Iceberg, Glacier, etc.</text>
+<!-- Modules -->
+<rect class="frost-box" x="400" y="60" width="260" height="120"/>
+<text class="frost-label" x="530" y="120" text-anchor="middle">Modules</text>
+<text class="frost-sub" x="530" y="150" text-anchor="middle">system, hardware, security, user, vms, etc.</text>
+<!-- Home Profiles -->
+<rect class="frost-box" x="60" y="250" width="220" height="120"/>
+<text class="frost-label" x="170" y="310" text-anchor="middle">Home Profiles</text>
+<text class="frost-sub" x="170" y="340" text-anchor="middle">common, linux, darwin</text>
+<!-- Lib -->
+<rect class="frost-box" x="400" y="250" width="260" height="120"/>
+<text class="frost-label" x="530" y="310" text-anchor="middle">Lib</text>
+<text class="frost-sub" x="530" y="340" text-anchor="middle">mk-linux-host, packages, user</text>
+<!-- Secrets -->
+<rect class="frost-box" x="800" y="60" width="260" height="120"/>
+<text class="frost-label" x="930" y="120" text-anchor="middle">Secrets</text>
+<text class="frost-sub" x="930" y="150" text-anchor="middle">YAML, overlays, .sops.yaml</text>
+<!-- Arrows -->
+<line class="frost-arrow" x1="280" y1="120" x2="400" y2="120"/>
+<line class="frost-arrow" x1="660" y1="120" x2="800" y2="120"/>
+<line class="frost-arrow" x1="170" y1="180" x2="170" y2="250"/>
+<line class="frost-arrow" x1="530" y1="180" x2="530" y2="250"/>
+<line class="frost-arrow" x1="660" y1="310" x2="800" y2="120"/>
+<!-- Deployment -->
+<rect class="frost-box" x="800" y="250" width="260" height="120"/>
+<text class="frost-label" x="930" y="310" text-anchor="middle">Deployment</text>
+<text class="frost-sub" x="930" y="340" text-anchor="middle">NixOS, nix-darwin, Home Manager</text>
+<line class="frost-arrow" x1="660" y1="310" x2="800" y2="310"/>
+<line class="frost-arrow" x1="280" y1="310" x2="400" y2="310"/>
+<line class="frost-arrow" x1="170" y1="370" x2="930" y2="370"/>
+</svg>
