@@ -16,6 +16,10 @@
     then [pkgs.xdg-desktop-portal-cosmic]
     else [pkgs.xdg-desktop-portal-gtk];
 
+  hyprPortal =
+    pkgs.xdg-desktop-portal-hyprland
+    or (pkgs.xdg-desktop-portal-wlr or pkgs.xdg-desktop-portal-gtk);
+
   kdePortal =
     pkgs.xdg-desktop-portal-kde
     or (
@@ -91,12 +95,80 @@
         xdg.portal.extraPortals = cosmicPortals;
       }
     ];
+
+    hyprland = mkMerge [
+      {
+        programs.hyprland = {
+          enable = true;
+          xwayland.enable = true;
+        };
+
+        services = {
+          seatd.enable = true;
+          greetd = {
+            enable = true;
+            settings.default_session = {
+              command = "${pkgs.greetd.tuigreet}/bin/tuigreet --time --remember --remember-user-session --asterisks --cmd Hyprland";
+              user = "greeter";
+            };
+          };
+        };
+
+        services.xserver.enable = mkDefault false;
+
+        security = {
+          polkit.enable = true;
+          pam.services.hyprlock = {};
+        };
+
+        xdg.portal = {
+          xdgOpenUsePortal = true;
+          extraPortals = [hyprPortal pkgs.xdg-desktop-portal-gtk];
+          config = {
+            common.default = ["hyprland"];
+            hyprland.default = ["hyprland" "gtk"];
+          };
+        };
+
+        environment.variables = {
+          NIXOS_OZONE_WL = "1";
+        };
+
+        environment.systemPackages = with pkgs; [
+          brightnessctl
+          cliphist
+          dunst
+          grim
+          grimblast
+          hypridle
+          hyprland
+          hyprlock
+          hyprpaper
+          kitty
+          lightctl
+          mako
+          networkctlScript
+          networkmanagerapplet
+          pavucontrol
+          polkit_gnome
+          rofi-wayland
+          slurp
+          swaybg
+          swappy
+          waybar
+          wf-recorder
+          wl-clipboard
+          wlogout
+          wireplumber
+        ];
+      }
+    ];
   };
 
   commonConfig = mkMerge [
     {
       services.xserver = {
-        enable = true;
+        enable = mkDefault true;
         videoDrivers = mkDefault ["modesetting"];
         xkb.layout = "us";
       };
