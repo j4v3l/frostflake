@@ -10,8 +10,8 @@ in
   mkLinuxHost {
     inherit inputs frostflakeRoot frostflakeUser;
     hostName = "avalanche";
-    desktopProfile = "gnome";
-    homeModule = import ../../home/jager/linux/default.nix;
+    desktopProfile = "hyprland";
+    homeModule = import ../../home/jager/linux/hyprland.nix;
     extraModules = [
       ../../modules/system/docker.nix
       ../../modules/system/vms.nix
