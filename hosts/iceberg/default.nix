@@ -33,6 +33,11 @@ in
         ollama.enable = false;
       };
 
+      frostflake.base.tooling.nh = {
+        enable = true;
+        flake = "/etc/nixos";
+      };
+
       system.stateVersion = "25.11";
     };
   }

@@ -39,6 +39,12 @@ in
         ollama.enable = false;
       };
 
+      frostflake.base.tooling.nh = {
+        enable = true;
+        flake = "/etc/nixos";
+        clean.enable = false; # avoid scheduled GC churn on the Pi's storage
+      };
+
       system.stateVersion = "25.11";
     };
   }

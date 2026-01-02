@@ -7,6 +7,7 @@
 }: let
   inherit
     (lib)
+    optionalAttrs
     mkEnableOption
     mkIf
     mkMerge
@@ -127,6 +128,35 @@ in {
           default = defaultDesktopPackages;
         };
       };
+      nh = {
+        enable =
+          mkEnableOption "NH helper CLI + garbage collection timer"
+          // {
+            default = false;
+          };
+        flake = mkOption {
+          type = types.nullOr types.str;
+          default = null;
+          description = "Default flake reference for NH (sets NH_FLAKE when provided).";
+        };
+        clean = {
+          enable =
+            mkEnableOption "Run nh clean on a schedule"
+            // {
+              default = true;
+            };
+          dates = mkOption {
+            type = types.singleLineStr;
+            default = "weekly";
+            description = "systemd timer expression for nh clean";
+          };
+          extraArgs = mkOption {
+            type = types.singleLineStr;
+            default = "--keep-since 7d --keep 5";
+            description = "Additional arguments passed to nh clean all";
+          };
+        };
+      };
     };
 
     virtualization = {
@@ -222,6 +252,21 @@ in {
           environment.systemPackages = combined;
         }
     )
+
+    (mkIf cfg.tooling.nh.enable {
+      programs.nh =
+        {
+          enable = true;
+          clean = let
+            cleanCfg = cfg.tooling.nh.clean;
+          in {
+            inherit (cleanCfg) enable dates extraArgs;
+          };
+        }
+        // optionalAttrs (cfg.tooling.nh.flake != null) {
+          inherit (cfg.tooling.nh) flake;
+        };
+    })
 
     (mkIf cfg.virtualization.docker.enable {
       services.dockerManager.enable = true;

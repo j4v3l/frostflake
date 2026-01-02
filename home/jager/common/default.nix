@@ -165,7 +165,13 @@ in {
         EDITOR = "nvim";
         LESS = "-FRSX";
       }
-      // lib.optionalAttrs (flakePath != null) {FLAKE = flakePath;};
+      // lib.optionalAttrs (flakePath != null) {
+        FLAKE = flakePath;
+        NH_FLAKE = flakePath;
+        NH_OS_FLAKE = flakePath;
+        NH_HOME_FLAKE = flakePath;
+        NH_DARWIN_FLAKE = flakePath;
+      };
     stateVersion = "24.11";
   };
 
@@ -259,6 +265,7 @@ in {
           gp = "git push";
           gl = "git pull";
           nclean = "sudo nix-collect-garbage -d && nix store optimise";
+          nhclean = "nh clean all --keep-since 7d --keep 5";
           nfu = "nix flake update";
           pkgupdate = "nix flake update";
           nfmt = "alejandra .";

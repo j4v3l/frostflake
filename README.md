@@ -43,6 +43,11 @@ $ make lint         # runs pre-commit via nix develop so tooling is on PATH
 
 The dev shell brings `alejandra`, `statix`, `deadnix`, `direnv`, `nix-direnv`, `git`, and `pre-commit`. Hooks fire on commit and push (so VS Code pushes also run linting) and fail if anything is out of date.
 
+### NH helper
+
+- `nh` ships in the dev shell + host profiles; when a frostflake checkout is on disk the `NH_*_FLAKE` variables are exported so `nh os switch`, `nh home switch`, and `nh darwin switch` work without passing `--flake`.
+- NixOS hosts enable NH per host in `hosts/*/default.nix`; the flake path is set to `/etc/nixos` so `nh os switch` works without extra flags. Avalanche keeps a slightly longer retention (`--keep-since 7d --keep 7`), Hailstone disables the scheduled cleaner, and Aurora/Iceberg use the defaults (`weekly`, `--keep-since 7d --keep 5`). Run it manually via the `nhclean` alias if you want an immediate sweep.
+
 ## Deploying hosts
 
 ```sh

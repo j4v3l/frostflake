@@ -35,6 +35,12 @@ in
         };
       };
 
+      frostflake.base.tooling.nh = {
+        enable = true;
+        flake = "/etc/nixos";
+        clean.extraArgs = "--keep-since 7d --keep 7";
+      };
+
       system.stateVersion = "25.11";
 
       home-manager.backupFileExtension = "hm-bak";

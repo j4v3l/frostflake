@@ -30,6 +30,7 @@
       bat
       direnv
       eza
+      nh
       tailscale
       wireguard-tools
       git
@@ -64,6 +65,7 @@
       kitty
       nil
       nixd
+      nh
       neovim
       ripgrep
       sops
@@ -86,6 +88,7 @@
     direnv
     nix-direnv
     git
+    nh
     sops
     pre-commit
   ];

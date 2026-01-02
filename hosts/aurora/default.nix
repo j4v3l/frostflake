@@ -33,7 +33,6 @@ in
       };
 
       # Allow plain password auth during initial bring-up; disable WebAuthn/PAM U2F on this host.
-      frostflake.security.webauthn.enable = false;
       security.pam.services = {
         login.u2fAuth = lib.mkForce false;
         sddm.u2fAuth = lib.mkForce false;
@@ -45,10 +44,17 @@ in
         "sddm-autologin".fprintAuth = lib.mkForce false;
       };
 
-      frostflake.ai = {
-        enable = false;
-        packages.enable = false;
-        ollama.enable = false;
+      frostflake = {
+        security.webauthn.enable = false;
+        ai = {
+          enable = false;
+          packages.enable = false;
+          ollama.enable = false;
+        };
+        base.tooling.nh = {
+          enable = true;
+          flake = "/etc/nixos";
+        };
       };
 
       # Container and VM definitions now live in ./containers.nix and ./virtual-machines.nix
