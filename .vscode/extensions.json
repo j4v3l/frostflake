@@ -1,8 +1,13 @@
 {
   "recommendations": [
+    "arrterian.nix-env-selector",
     "jnoortheen.nix-ide",
+    "mkhl.direnv",
     "ms-vscode.makefile-tools",
     "tamasfe.even-better-toml",
+    "redhat.vscode-yaml",
+    "davidanson.vscode-markdownlint",
+    "editorconfig.editorconfig",
     "github.vscode-github-actions"
   ]
 }
