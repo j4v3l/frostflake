@@ -1,0 +1,5 @@
+# Sources managed by nvfetcher.
+
+[ghostty]
+src.git = "https://github.com/ghostty-org/ghostty.git"
+fetch.github = "ghostty-org/ghostty"

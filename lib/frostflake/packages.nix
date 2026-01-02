@@ -1,7 +1,8 @@
 {
   pkgs,
   lib,
-}: let
+}:
+let
   inherit (lib.lists) unique;
 
   embeddedTools = with pkgs; [
@@ -19,12 +20,10 @@
   ];
 
   # nordvpn exists only on x86_64-linux; guard to keep other systems evaluable.
-  nordvpnPkg =
-    if pkgs ? nordvpn
-    then [pkgs.nordvpn]
-    else [];
+  nordvpnPkg = if pkgs ? nordvpn then [ pkgs.nordvpn ] else [ ];
 
-  systemCliBase = with pkgs;
+  systemCliBase =
+    with pkgs;
     [
       age
       bat
@@ -48,7 +47,8 @@
     ]
     ++ nordvpnPkg;
 
-  homeCliBase = with pkgs;
+  homeCliBase =
+    with pkgs;
     [
       age
       age-plugin-yubikey
@@ -91,17 +91,17 @@
   ];
 
   desktopApps =
-    if pkgs.stdenv.hostPlatform.isx86_64
-    then
-      with pkgs; [
+    if pkgs.stdenv.hostPlatform.isx86_64 then
+      with pkgs;
+      [
         brave
         vscode
       ]
-    else [];
+    else
+      [ ];
 
   homeDesktopLinux =
-    if pkgs.stdenv.hostPlatform.isx86_64
-    then
+    if pkgs.stdenv.hostPlatform.isx86_64 then
       (with pkgs; [
         brave
         gnome-terminal
@@ -110,27 +110,27 @@
         vscode
       ])
       ++ nordvpnPkg
-    else [];
+    else
+      [ ];
 
   aiDesktopApps =
-    if pkgs.stdenv.hostPlatform.isx86_64
-    then
-      with pkgs; [
+    if pkgs.stdenv.hostPlatform.isx86_64 then
+      with pkgs;
+      [
         code-cursor
         lmstudio
         ollama
       ]
-    else [];
+    else
+      [ ];
 
-  darwinExtras =
-    if pkgs.stdenv.hostPlatform.isDarwin
-    then with pkgs; [iterm2]
-    else [];
+  darwinExtras = if pkgs.stdenv.hostPlatform.isDarwin then with pkgs; [ iterm2 ] else [ ];
 
-  devShellPackages = lintingTools ++ shellTools ++ embeddedTools;
+  devShellPackages = lintingTools ++ shellTools ++ embeddedTools ++ [ pkgs.nvfetcher ];
   systemCli = systemCliBase ++ embeddedTools;
   homeCommon = homeCliBase ++ embeddedTools;
-in {
+in
+{
   system = {
     cli = unique systemCli;
     desktop = desktopApps;
