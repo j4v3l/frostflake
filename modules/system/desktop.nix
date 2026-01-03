@@ -114,7 +114,8 @@
           };
         };
 
-        services.xserver.enable = mkDefault false;
+        # Force X11 off for Hyprland to avoid conflicting mkDefault values from commonConfig.
+        services.xserver.enable = lib.mkForce false;
 
         security = {
           polkit.enable = true;
@@ -145,13 +146,11 @@
           hyprlock
           hyprpaper
           kitty
-          lightctl
           mako
-          networkctlScript
           networkmanagerapplet
           pavucontrol
           polkit_gnome
-          rofi-wayland
+          rofi
           slurp
           swaybg
           swappy

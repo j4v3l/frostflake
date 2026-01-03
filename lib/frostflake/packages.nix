@@ -196,7 +196,7 @@
     mako
     networkmanagerapplet
     pavucontrol
-    rofi-wayland
+    rofi
     slurp
     swaybg
     swappy
@@ -222,7 +222,7 @@
     mako
     networkmanagerapplet
     pavucontrol
-    rofi-wayland
+    rofi
     slurp
     swaybg
     swappy

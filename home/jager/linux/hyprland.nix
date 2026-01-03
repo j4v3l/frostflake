@@ -35,7 +35,7 @@
   in {
     inherit colors;
     xcolors = lib.mapAttrsRecursive (_: c: "#${c}") colors;
-    wallpaper = pkgs.nixos-artwork.wallpapers.simple-dark.gnomeFile;
+    wallpaper = pkgs.nixos-artwork.wallpapers.simple-dark-gray.gnomeFilePath;
     font = {
       family = "GeistMono Nerd Font";
       size = 12;
@@ -64,7 +64,6 @@ in {
       theme.icon.package
       theme.gtkTheme.package
       theme.cursor.package
-      pkgs.colloid-kde
       pkgs.geist-font
       pkgs.hyprlandPlugins.hyprexpo
     ];
@@ -101,7 +100,7 @@ in {
   programs = {
     rofi = {
       enable = true;
-      package = pkgs.rofi-wayland;
+      package = pkgs.rofi;
       theme = null; # keep default theme to avoid missing assets
       extraConfig = {
         modi = "drun,run,window";
@@ -589,11 +588,11 @@ in {
         ]
         ++ lib.concatLists (lib.genList (
             x: let
-              ws = let c = (x + 1) / 10; in lib.toString (x + 1 - (c * 10));
+              ws = let c = (x + 1) / 10; in builtins.toString (x + 1 - (c * 10));
             in [
-              "SUPER, ${ws}, workspace, ${lib.toString (x + 1)}"
-              "SUPER_SHIFT, ${ws}, movetoworkspace, ${lib.toString (x + 1)}"
-              "ALT_SHIFT, ${ws}, movetoworkspacesilent, ${lib.toString (x + 1)}"
+              "SUPER, ${ws}, workspace, ${builtins.toString (x + 1)}"
+              "SUPER_SHIFT, ${ws}, movetoworkspace, ${builtins.toString (x + 1)}"
+              "ALT_SHIFT, ${ws}, movetoworkspacesilent, ${builtins.toString (x + 1)}"
             ]
           )
           10)
