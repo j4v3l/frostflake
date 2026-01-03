@@ -21,6 +21,8 @@ in
       ./virtual-machines.nix
     ];
     extraConfig = {
+      frostflake.security.webauthn.enable = false;
+
       boot.loader.systemd-boot.enable = true;
       boot.loader.efi.canTouchEfiVariables = true;
 

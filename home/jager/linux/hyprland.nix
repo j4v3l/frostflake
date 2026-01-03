@@ -391,7 +391,7 @@ in {
     cliphist = {
       enable = true;
       allowImages = true;
-      systemdTarget = "graphical-session.target";
+      systemdTargets = ["graphical-session.target"];
     };
   };
 
