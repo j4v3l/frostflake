@@ -86,7 +86,6 @@ in {
     iconTheme = theme.icon;
     theme = theme.gtkTheme;
     gtk3.bookmarks = [];
-    gtk4.bookmarks = [];
   };
 
   qt = {
