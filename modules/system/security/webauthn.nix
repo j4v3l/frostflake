@@ -67,7 +67,7 @@ in {
         ssh = {
           hardwareOnly = mkOption {
             type = types.bool;
-            default = true;
+            default = false;
             description = "Restrict sshd to hardware-backed public keys.";
           };
 
@@ -123,6 +123,9 @@ in {
         services.pcscd.enable = true;
         services.udev.packages = optionals (pkgs ? yubikey-personalization) [pkgs.yubikey-personalization];
         environment.systemPackages = pcscPackages;
+
+        # Ensure the opt-out group exists so pam_succeed_if rules can succeed.
+        users.groups.${cfg.exemptGroup} = {};
 
         security.pam.u2f = {
           enable = true;

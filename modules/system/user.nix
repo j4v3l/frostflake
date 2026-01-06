@@ -5,7 +5,7 @@
   frostflakeUser,
   ...
 }: let
-  inherit (lib) optionals;
+  inherit (lib) mkDefault optionalAttrs optionals;
   user = frostflakeUser;
   shellPackage = user.shellPackage pkgs;
   groups = user.extraGroups or [];
@@ -27,20 +27,29 @@
     then webauthnConfig.exemptGroup or "frostflake-webauthn-exempt"
     else null;
   resolvedGroups = groups ++ optionals (exemptGroup != null && !requireWebauthn) [exemptGroup];
+  managedHashedPassword = user.hashedPassword or null;
+  managedHashedPasswordFile = user.hashedPasswordFile or null;
+  hasManagedPassword = (managedHashedPassword != null) || (managedHashedPasswordFile != null);
 in {
-  users.users.${user.username} = {
-    isNormalUser = true;
-    inherit description;
-    home = homeDir;
-    shell = shellPackage;
-    extraGroups = resolvedGroups;
-    openssh.authorizedKeys.keys = combinedKeys;
-    # Temporary password so the account is accessible after rebuilds; rotate immediately.
-    hashedPassword = "$6$Aecm0m2psWqfuGI7$M7eSCU/ivy.C1yoBAUtxMxyrmWo0.ezx6CJqfB0NwFBq8ZaMUliBDiZErfTfmayPh1mFXYpyqiemPk9V/GyuN/";
-  };
+  users.users.${user.username} =
+    {
+      isNormalUser = true;
+      inherit description;
+      home = homeDir;
+      shell = shellPackage;
+      extraGroups = resolvedGroups;
+      openssh.authorizedKeys.keys = combinedKeys;
+    }
+    // optionalAttrs (managedHashedPassword != null) {
+      hashedPassword = managedHashedPassword;
+    }
+    // optionalAttrs (managedHashedPasswordFile != null) {
+      hashedPasswordFile = managedHashedPasswordFile;
+    };
 
-  # Enforce declarative users so the hashedPassword above is applied on rebuild.
-  users.mutableUsers = lib.mkDefault false;
+  # Keep users mutable unless a managed password is supplied, so local password
+  # changes persist instead of being reset on rebuild.
+  users.mutableUsers = mkDefault (!hasManagedPassword);
 
   security.sudo = {
     enable = true;
