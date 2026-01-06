@@ -3,6 +3,7 @@
   lib,
   frostflakeUser,
   frostflakeRoot,
+  inputs,
   ...
 }: let
   inherit (pkgs.stdenv) isDarwin;
@@ -152,6 +153,10 @@
     PY
   '';
 in {
+  imports = [
+    inputs.nixvim.homeManagerModules.nixvim
+  ];
+
   home = {
     inherit (user) username;
     homeDirectory = homeDir;
@@ -212,6 +217,262 @@ in {
           color = "cyan";
         };
         modules = fastfetchModules;
+      };
+    };
+    nixvim = {
+      enable = true;
+      defaultEditor = true;
+      viAlias = true;
+      vimAlias = true;
+      globals.mapleader = " ";
+      opts = {
+        number = true;
+        relativenumber = true;
+        cursorline = true;
+        expandtab = true;
+        shiftwidth = 2;
+        tabstop = 2;
+        smartindent = true;
+        wrap = false;
+        scrolloff = 8;
+        sidescrolloff = 8;
+        termguicolors = true;
+        signcolumn = "yes";
+        splitbelow = true;
+        splitright = true;
+        ignorecase = true;
+        smartcase = true;
+        timeoutlen = 400;
+        updatetime = 250;
+      };
+      colorschemes.catppuccin = {
+        enable = true;
+        flavour = "macchiato";
+        integrations = {
+          cmp = true;
+          gitsigns = true;
+          telescope = true;
+          treesitter = true;
+          which_key = true;
+          indent_blankline = true;
+          nvimtree = true;
+          native_lsp = {
+            enabled = true;
+          };
+        };
+      };
+      keymaps = [
+        {
+          mode = "n";
+          key = "<leader>ff";
+          action = "<cmd>Telescope find_files<cr>";
+          options = {
+            desc = "Find files";
+            silent = true;
+          };
+        }
+        {
+          mode = "n";
+          key = "<leader>fg";
+          action = "<cmd>Telescope live_grep<cr>";
+          options = {
+            desc = "Live grep";
+            silent = true;
+          };
+        }
+        {
+          mode = "n";
+          key = "<leader>fb";
+          action = "<cmd>Telescope buffers<cr>";
+          options.desc = "List buffers";
+        }
+        {
+          mode = "n";
+          key = "<leader>fh";
+          action = "<cmd>Telescope help_tags<cr>";
+          options.desc = "Help tags";
+        }
+        {
+          mode = "n";
+          key = "<leader>e";
+          action = "<cmd>NvimTreeToggle<cr>";
+          options.desc = "Toggle file explorer";
+        }
+        {
+          mode = "n";
+          key = "<C-n>";
+          action = "<cmd>NvimTreeToggle<cr>";
+          options.desc = "Toggle file explorer";
+        }
+        {
+          mode = "n";
+          key = "<leader>bd";
+          action = "<cmd>bdelete<cr>";
+          options.desc = "Delete buffer";
+        }
+        {
+          mode = "n";
+          key = "<leader>qq";
+          action = "<cmd>qa<cr>";
+          options.desc = "Quit all";
+        }
+        {
+          mode = "n";
+          key = "gd";
+          action = "<cmd>lua vim.lsp.buf.definition()<cr>";
+          options.desc = "LSP definition";
+        }
+        {
+          mode = "n";
+          key = "gr";
+          action = "<cmd>lua vim.lsp.buf.references()<cr>";
+          options.desc = "LSP references";
+        }
+        {
+          mode = "n";
+          key = "K";
+          action = "<cmd>lua vim.lsp.buf.hover()<cr>";
+          options.desc = "LSP hover";
+        }
+        {
+          mode = "n";
+          key = "<leader>rn";
+          action = "<cmd>lua vim.lsp.buf.rename()<cr>";
+          options.desc = "LSP rename";
+        }
+        {
+          mode = "n";
+          key = "<leader>ca";
+          action = "<cmd>lua vim.lsp.buf.code_action()<cr>";
+          options.desc = "LSP code action";
+        }
+        {
+          mode = "n";
+          key = "[d";
+          action = "<cmd>lua vim.diagnostic.goto_prev()<cr>";
+          options.desc = "Prev diagnostic";
+        }
+        {
+          mode = "n";
+          key = "]d";
+          action = "<cmd>lua vim.diagnostic.goto_next()<cr>";
+          options.desc = "Next diagnostic";
+        }
+      ];
+      plugins = {
+        lualine = {
+          enable = true;
+          settings = {
+            options = {
+              theme = "auto";
+              globalstatus = true;
+              component_separators = {
+                left = "|";
+                right = "|";
+              };
+              section_separators = {
+                left = "";
+                right = "";
+              };
+            };
+          };
+        };
+        bufferline = {
+          enable = true;
+          settings = {
+            options = {
+              diagnostics = "nvim_lsp";
+              separatorStyle = "slant";
+              showCloseIcon = false;
+              showBufferCloseIcons = false;
+            };
+          };
+        };
+        telescope = {
+          enable = true;
+          extensions."fzf-native".enable = true;
+        };
+        treesitter = {
+          enable = true;
+          indent = true;
+          ensureInstalled = [
+            "bash"
+            "c"
+            "cpp"
+            "fish"
+            "json"
+            "lua"
+            "markdown"
+            "markdown_inline"
+            "nix"
+            "python"
+            "regex"
+            "rust"
+            "toml"
+            "tsx"
+            "typescript"
+            "vim"
+            "vimdoc"
+            "yaml"
+          ];
+        };
+        "nvim-tree" = {
+          enable = true;
+          view.width = 32;
+          renderer = {
+            highlightGit = true;
+            indentMarkers.enable = true;
+          };
+          git.enable = true;
+          diagnostics.enable = true;
+          filters.custom = [".git"];
+          actions.openFile.resizeWindow = true;
+        };
+        gitsigns.enable = true;
+        comment.enable = true;
+        "which-key".enable = true;
+        "indent-blankline" = {
+          enable = true;
+          settings = {
+            indent.char = "|";
+            scope.enabled = true;
+          };
+        };
+        "nvim-autopairs".enable = true;
+        alpha = {
+          enable = true;
+          theme = "dashboard";
+        };
+        cmp = {
+          enable = true;
+          autoEnableSources = true;
+          snippet.expand = "function(args) require('luasnip').lsp_expand(args.body) end";
+          sources = [
+            {name = "nvim_lsp";}
+            {name = "luasnip";}
+            {name = "path";}
+            {name = "buffer";}
+          ];
+          mapping = {
+            "<CR>" = "cmp.mapping.confirm({ select = true })";
+            "<C-Space>" = "cmp.mapping.complete()";
+            "<C-e>" = "cmp.mapping.abort()";
+            "<C-n>" = "cmp.mapping.select_next_item()";
+            "<C-p>" = "cmp.mapping.select_prev_item()";
+            "<Tab>" = "cmp.mapping.select_next_item()";
+            "<S-Tab>" = "cmp.mapping.select_prev_item()";
+          };
+        };
+        luasnip.enable = true;
+        lsp = {
+          enable = true;
+          servers = {
+            lua_ls.enable = true;
+            nixd.enable = true;
+            rust_analyzer.enable = true;
+            pyright.enable = true;
+          };
+        };
       };
     };
     zsh = {

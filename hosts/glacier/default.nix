@@ -25,7 +25,7 @@ in {
   home-manager = {
     useGlobalPkgs = true;
     useUserPackages = true;
-    extraSpecialArgs = {inherit frostflakeUser frostflakeRoot;};
+    extraSpecialArgs = {inherit frostflakeUser frostflakeRoot inputs;};
     users.${user.username} = import ../../home/jager/darwin/default.nix;
   };
 
