@@ -8,6 +8,7 @@
     (lib)
     genAttrs
     hasPrefix
+    mkAfter
     mkEnableOption
     mkIf
     mkMerge
@@ -142,8 +143,16 @@ in {
   in
     mkMerge [
       {
-        services.pcscd.enable = true;
-        services.udev.packages = optionals (pkgs ? yubikey-personalization) [pkgs.yubikey-personalization];
+        services = {
+          pcscd.enable = true;
+          udev.packages =
+            optionals (pkgs ? yubikey-personalization) [pkgs.yubikey-personalization]
+            ++ optionals (pkgs ? libfido2) [pkgs.libfido2];
+          udev.extraRules = mkAfter ''
+            # Allow members of plugdev (including the primary user) to access YubiKey HID devices.
+            KERNEL=="hidraw*", SUBSYSTEM=="hidraw", ATTRS{idVendor}=="1050", MODE="0660", GROUP="plugdev", TAG+="uaccess"
+          '';
+        };
         environment.systemPackages = pcscPackages;
 
         # Ensure the opt-out group exists so pam_succeed_if rules can succeed.
