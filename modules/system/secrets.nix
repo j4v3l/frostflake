@@ -86,6 +86,25 @@ in {
       sops.age.keyFile = cfg.ageKeyFile;
     }
 
+    (mkIf (cfg.pamU2F.enable && (config.frostflake.security.webauthn.enable or true)) {
+      assertions = [
+        {
+          assertion = pamSecretAvailable;
+          message = ''
+            frostflake.secrets.pamU2F is enabled but ${cfg.sharedFile} does not exist.
+            Create it with `make secret-edit FILE=shared.yaml` to avoid login lockouts.
+          '';
+        }
+        {
+          assertion = pamSecretReady;
+          message = ''
+            frostflake.secrets.pamU2F detected ${cfg.sharedFile}, but it is still plaintext.
+            Encrypt it with `sops` so the pam_u2f mapping stays secret at rest.
+          '';
+        }
+      ];
+    })
+
     (mkIf hostSecretReady {
       sops.defaultSopsFile = builtins.path {path = cfg.hostFile;};
     })
