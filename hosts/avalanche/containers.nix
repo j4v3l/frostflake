@@ -11,6 +11,12 @@ _: {
     extraOptions = [
       "--runtime=nvidia"
       "--gpus=all"
+      "--device=/dev/nvidiactl"
+      "--device=/dev/nvidia0"
+      "--device=/dev/nvidia-uvm"
+      "--device=/dev/nvidia-uvm-tools"
+      "--env=NVIDIA_VISIBLE_DEVICES=all"
+      "--env=NVIDIA_DRIVER_CAPABILITIES=compute,utility,video,graphics"
       "--init"
       "--pid=host"
     ];
