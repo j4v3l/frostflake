@@ -55,6 +55,7 @@ in
 
       users = {
         groups.plugdev.members = ["jager"];
+        groups.docker.members = ["jager"];
         mutableUsers = false;
         users.jager.openssh.authorizedKeys.keys = [
           "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHCsQ4NNDuuAj/NLrC9yXVoGRNU5DRTEqC2ybN+Y9Qjf jager@Javels-MacBook-Pro.local"

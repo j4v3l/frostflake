@@ -10,6 +10,7 @@ _: {
     };
     extraOptions = [
       "--runtime=nvidia"
+      "--gpus=all"
       "--init"
       "--pid=host"
     ];
