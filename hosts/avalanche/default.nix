@@ -21,11 +21,14 @@ in
       ./virtual-machines.nix
     ];
     extraConfig = {
+      # Force cgroup v1 for NVIDIA Docker compatibility and nest all boot options
+      boot = {
+        kernelParams = ["systemd.unified_cgroup_hierarchy=0"];
+        loader.systemd-boot.enable = true;
+        loader.efi.canTouchEfiVariables = true;
+      };
       # Enable Docker and NVIDIA runtime support
       virtualisation.docker.enable = true;
-      virtualisation.docker.enableNvidia = true;
-      boot.loader.systemd-boot.enable = true;
-      boot.loader.efi.canTouchEfiVariables = true;
 
       hardware.nvidia-container-toolkit.enable = true;
       hardware.gpu.profile = "nvidia";
