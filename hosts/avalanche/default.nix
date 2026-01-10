@@ -52,5 +52,8 @@ in
       services.displayManager.autoLogin.enable = false;
 
       # Container and VM definitions now live in ./containers.nix and ./virtual-machines.nix
+
+      # Ensure plugdev group contains the login user for YubiKey HID access.
+      users.groups.plugdev.members = ["jager"];
     };
   }
