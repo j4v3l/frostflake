@@ -1,6 +1,7 @@
 {
   inputs,
   lib,
+  pkgs,
   frostflakeRoot,
   frostflakeUser,
   ...
@@ -82,5 +83,9 @@ in
 
       # Ensure Docker/NVIDIA runtime config is merged
       services.dockerManager.enable = true;
+
+      environment.systemPackages = [
+        pkgs.nvidia-container-toolkit
+      ];
     };
   }
