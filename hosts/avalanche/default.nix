@@ -21,6 +21,9 @@ in
       ./virtual-machines.nix
     ];
     extraConfig = {
+      # Enable Docker and NVIDIA runtime support
+      virtualisation.docker.enable = true;
+      virtualisation.docker.enableNvidia = true;
       boot.loader.systemd-boot.enable = true;
       boot.loader.efi.canTouchEfiVariables = true;
 
