@@ -23,8 +23,8 @@
   };
 
   security = {
-    # Allow password-only login initially; flip to true after WebAuthn mapping is in place.
-    requireWebauthn = false;
+    # Enforce WebAuthn so logins require the YubiKey.
+    requireWebauthn = true;
     ssh = {
       hardwareKeys = [];
       softFallbackKeys = [];

@@ -26,24 +26,30 @@ in
 
       hardware.nvidia-container-toolkit.enable = true;
       hardware.gpu.profile = "nvidia";
-      frostflake.ai = {
-        enable = true;
-        packages.enable = true;
-        ollama = {
-          enable = lib.mkDefault true;
-          acceleration = lib.mkDefault "cuda";
+      frostflake = {
+        ai = {
+          enable = true;
+          packages.enable = true;
+          ollama = {
+            enable = lib.mkDefault true;
+            acceleration = lib.mkDefault "cuda";
+          };
         };
-      };
 
-      frostflake.base.tooling.nh = {
-        enable = true;
-        flake = "/etc/nixos";
-        clean.extraArgs = "--keep-since 7d --keep 7";
+        base.tooling.nh = {
+          enable = true;
+          flake = "/etc/nixos";
+          clean.extraArgs = "--keep-since 7d --keep 7";
+        };
+
+        security.webauthn.allowUserOptOut = false;
       };
 
       system.stateVersion = "25.11";
 
       home-manager.backupFileExtension = "hm-bak";
+
+      services.displayManager.autoLogin.enable = false;
 
       # Container and VM definitions now live in ./containers.nix and ./virtual-machines.nix
     };

@@ -89,7 +89,13 @@ switch-hw: regen-hardware
 	sudo nixos-rebuild switch --flake "$(FLAKE)#$(HOST)"
 
 secrets-verify:
-	@find secrets -name '*.yaml' -print0 | xargs -0 -r $(SOPS) --verify
+	@find secrets -name '*.yaml' -print0 | while IFS= read -r -d '' f; do \
+		status=$$($(SOPS) filestatus "$$f"); \
+		echo "$$status" | rg -q '"encrypted":[[:space:]]*true' || { \
+			echo "secrets-verify: $$f is not encrypted"; \
+			exit 1; \
+		}; \
+	done
 
 yubi-pam-enroll:
 	@mkdir -p "$(YUBI_CONFIG_DIR)"

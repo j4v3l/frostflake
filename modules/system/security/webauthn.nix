@@ -7,11 +7,13 @@
   inherit
     (lib)
     genAttrs
+    hasPrefix
     mkEnableOption
     mkIf
     mkMerge
     mkOption
     optionals
+    removePrefix
     types
     ;
   cfg = config.frostflake.security.webauthn;
@@ -112,12 +114,23 @@ in {
         };
       });
     };
-    managedMappingFile = mkIf (cfg.mappingFileSource != null) {
-      environment.etc."security/u2f-mappings" = {
-        source = cfg.mappingFileSource;
-        mode = "0400";
-      };
-    };
+    mappingFileEtc =
+      if hasPrefix "/etc/" cfg.mappingFile
+      then removePrefix "/etc/" cfg.mappingFile
+      else null;
+    managedMappingFile = mkIf (cfg.mappingFileSource != null) (mkMerge [
+      (mkIf (mappingFileEtc != null) {
+        environment.etc.${mappingFileEtc} = {
+          source = cfg.mappingFileSource;
+          mode = "0400";
+        };
+      })
+      (mkIf (mappingFileEtc == null) {
+        systemd.tmpfiles.rules = [
+          "C ${cfg.mappingFile} 0400 root root - ${cfg.mappingFileSource}"
+        ];
+      })
+    ]);
     sshAlgorithmsValue = lib.concatStringsSep "," cfg.ssh.allowedAlgorithms;
     pcscPackages = [
       pkgs.libfido2
