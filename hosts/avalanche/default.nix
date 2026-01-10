@@ -53,7 +53,12 @@ in
 
       # Container and VM definitions now live in ./containers.nix and ./virtual-machines.nix
 
-      # Ensure plugdev group contains the login user for YubiKey HID access.
-      users.groups.plugdev.members = ["jager"];
+      users = {
+        groups.plugdev.members = ["jager"];
+        mutableUsers = false;
+        users.jager.openssh.authorizedKeys.keys = [
+          "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHCsQ4NNDuuAj/NLrC9yXVoGRNU5DRTEqC2ybN+Y9Qjf jager@Javels-MacBook-Pro.local"
+        ];
+      };
     };
   }
