@@ -107,7 +107,7 @@ in {
         rules.auth = mkIf cfg.allowUserOptOut {
           "frostflake-webauthn-exempt" = {
             enable = true;
-            order = 5000;
+            order = 100;
             control = "[success=done default=ignore]";
             modulePath = "${pkgs.pam}/lib/security/pam_succeed_if.so";
             args = ["user" "ingroup" cfg.exemptGroup];
@@ -157,6 +157,7 @@ in {
 
         # Ensure the opt-out group exists so pam_succeed_if rules can succeed.
         users.groups.${cfg.exemptGroup} = {};
+        users.groups.plugdev = {};
 
         security.pam.u2f = {
           enable = true;

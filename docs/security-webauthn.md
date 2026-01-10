@@ -67,7 +67,7 @@ security = {
   To restore the stub on a new client, plug in the YubiKey and run `ssh-keygen -K -f ~/.ssh/id_ed25519_sk`.
 5. **Test locally** before rollout:
    ```bash
-   sudo pam-auth-update --list   # Confirm pam_u2f is present
+  rg -n pam_u2f /etc/pam.d       # Confirm pam_u2f is present
   ssh -o PubkeyAcceptedAlgorithms=+sk-ssh-ed25519@openssh.com localhost
    ```
 
@@ -81,4 +81,3 @@ security = {
 These are available as `zsh` aliases (via home-manager) and just call the `Makefile` or `ykman` directly; ensure the `frostflake.security.webauthn` module remains enabled so the required packages (libfido2, yubikey-manager, yubikey-personalization, yubico-pam) stay installed.
 
 ## Operational tips
-
