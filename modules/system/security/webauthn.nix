@@ -42,7 +42,16 @@ in {
 
         pamServices = mkOption {
           type = types.listOf types.str;
-          default = ["login" "sudo" "sshd" "polkit-1"];
+          default = [
+            "login"
+            "sudo"
+            "sshd"
+            "polkit-1"
+            "gdm-password"
+            "sddm"
+            "lightdm"
+            "cosmic-greeter"
+          ];
           description = "PAM stacks that must require pam_u2f.";
         };
 

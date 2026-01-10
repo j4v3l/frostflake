@@ -32,7 +32,7 @@ in
         fprintd.enable = true;
       };
 
-      # Allow plain password auth during initial bring-up; disable WebAuthn/PAM U2F on this host.
+      # Allow plain password auth during initial bring-up; keep WebAuthn tooling installed without PAM enforcement.
       security.pam.services = {
         login.u2fAuth = lib.mkForce false;
         sddm.u2fAuth = lib.mkForce false;
@@ -45,7 +45,10 @@ in
       };
 
       frostflake = {
-        security.webauthn.enable = false;
+        security.webauthn = {
+          enable = true;
+          enforcePam = false;
+        };
         ai = {
           enable = false;
           packages.enable = false;

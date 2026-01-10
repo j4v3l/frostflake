@@ -17,12 +17,18 @@ with lib; let
   usersCfg = config.users.users;
   defaultUsers = builtins.attrNames (filterAttrs (_: user: user.isNormalUser or false) usersCfg);
   targetUsers =
-    if cfg.extraUsers == []
-    then defaultUsers
+    if cfg.autoAddNormalUsers
+    then defaultUsers ++ cfg.extraUsers
     else cfg.extraUsers;
 in {
   options.services.dockerManager = {
     enable = mkEnableOption "opinionated Docker setup";
+
+    autoAddNormalUsers = mkOption {
+      type = types.bool;
+      default = true;
+      description = "Automatically add all normal users to the docker group.";
+    };
 
     rootless = mkOption {
       type = types.bool;
@@ -33,7 +39,7 @@ in {
     extraUsers = mkOption {
       type = types.listOf types.str;
       default = [];
-      description = "Additional usernames to add to the docker group. Defaults to all normal users.";
+      description = "Additional usernames to add to the docker group.";
     };
 
     daemonSettings = mkOption {

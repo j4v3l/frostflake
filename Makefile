@@ -2,10 +2,12 @@ SHELL := /bin/sh
 
 # Paths and tool defaults
 SOPS_AGE_KEY_FILE ?= $(HOME)/.config/sops/age/keys.txt
+export SOPS_AGE_KEY_FILE
 SOPS ?= sops
 AGE_KEYGEN ?= age-keygen
 FLAKE ?= .
-NIX ?= nix --extra-experimental-features "nix-command flakes"
+NIX_FLAGS ?= --extra-experimental-features "nix-command flakes"
+NIX ?= nix $(NIX_FLAGS)
 HOST ?=
 FILE ?=hosts/avalanche.yaml
 EDITOR ?= nvim
@@ -32,6 +34,7 @@ help:
 	@echo "  make switch HOST=...             # nixos-rebuild switch --flake"
 	@echo "  make darwin HOST=...             # darwin-rebuild switch --flake"
 	@echo "  make fmt / check / lint          # formatting, flake check, pre-commit (with nix-command + flakes)"
+	@echo "  make repl                        # nix repl with this flake"
 	@echo "  make dev                         # enter dev shell (nix-command + flakes enabled)"
 
 age-key:
@@ -91,7 +94,7 @@ secrets-verify:
 yubi-pam-enroll:
 	@mkdir -p "$(YUBI_CONFIG_DIR)"
 	@echo "Touch the YubiKey when it blinks to create pam_u2f mapping..."
-	@nix shell nixpkgs#pam_u2f -c pamu2fcfg -u "$(USER)" > "$(U2F_MAPPING_OUT)"
+	@$(NIX) shell nixpkgs#pam_u2f -c pamu2fcfg -u "$(USER)" > "$(U2F_MAPPING_OUT)"
 	@echo "pam_u2f mapping written to $(U2F_MAPPING_OUT)"
 	@echo "Append this line into secrets/shared.yaml (pam_u2f_mappings) and re-encrypt with 'make secret-encrypt FILE=shared.yaml'."
 
@@ -113,10 +116,10 @@ lint:
 	$(NIX) develop "$(FLAKE)" -c pre-commit run --all-files
 
 fmt:
-	$(NIX) fmt .
+	$(NIX) fmt
 
 check:
-	$(NIX) flake check --impure
+	$(NIX) flake check
 
 switch:
 	@test -n "$(HOST)" || { echo "Usage: make switch HOST=<flake output>" >&2; exit 1; }
@@ -132,8 +135,7 @@ repl:
 devshell:
 	$(NIX) develop "$(FLAKE)"
 
-dev:
-	$(NIX) develop "$(FLAKE)"
+dev: devshell
 
 darwin:
 	@test -n "$(HOST)" || { echo "Usage: make darwin HOST=Glacier" >&2; exit 1; }

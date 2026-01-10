@@ -184,7 +184,7 @@ in {
 
       time = {
         timeZone = mkDefault "Etc/UTC";
-        hardwareClockInLocalTime = mkDefault true;
+        hardwareClockInLocalTime = mkDefault false;
       };
       i18n.defaultLocale = mkDefault "en_US.UTF-8";
       console.keyMap = mkDefault "us";

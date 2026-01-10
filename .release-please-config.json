@@ -1,0 +1,9 @@
+{
+  "release-type": "simple",
+  "package-name": "frostflake",
+  "include-v-in-tag": true,
+  "changelog-path": "CHANGELOG.md",
+  "extra-files": [
+    "VERSION"
+  ]
+}

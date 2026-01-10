@@ -97,11 +97,91 @@
         exec ${pythonWithPsutil}/bin/python3 - <<'PY'
     import shutil
     import subprocess
+    import json
+    import platform
     import psutil
+
+    NVIDIA_VENDOR = "0x10de"
+    AMD_VENDOR = "0x1002"
+    INTEL_VENDOR = "0x8086"
+
+    def read_file(path):
+        try:
+            with open(path) as f:
+                return f.read().strip()
+        except Exception:
+            return None
+
+    def detect_gpu():
+        nvidia_smi = shutil.which("nvidia-smi")
+        if nvidia_smi:
+            return {"type": "nvidia", "path": nvidia_smi, "label": "NVIDIA"}
+
+        if platform.system() == "Darwin":
+            profiler = shutil.which("system_profiler")
+            if profiler:
+                try:
+                    out = subprocess.check_output(
+                        [profiler, "SPDisplaysDataType", "-json"],
+                        text=True,
+                        timeout=1.5,
+                    )
+                    data = json.loads(out)
+                    displays = data.get("SPDisplaysDataType", [])
+                    if displays:
+                        name = (
+                            displays[0].get("sppci_model")
+                            or displays[0].get("_name")
+                            or "Integrated GPU"
+                        )
+                        lower = name.lower()
+                        if "amd" in lower or "radeon" in lower:
+                            gpu_type = "mac_amd"
+                        elif "intel" in lower:
+                            gpu_type = "mac_intel"
+                        else:
+                            gpu_type = "mac_apple"
+                        return {"type": gpu_type, "label": name}
+                except Exception:
+                    pass
+
+        for idx in range(4):
+            vendor = read_file(f"/sys/class/drm/card{idx}/device/vendor")
+            if not vendor:
+                continue
+            vendor = vendor.lower()
+            if vendor == INTEL_VENDOR:
+                return {"type": "intel", "label": "Intel iGPU"}
+            if vendor == AMD_VENDOR:
+                return {"type": "amd", "label": "AMD iGPU"}
+            if vendor == NVIDIA_VENDOR:
+                return {"type": "nvidia", "path": nvidia_smi, "label": "NVIDIA"}
+
+        lspci = shutil.which("lspci")
+        if lspci:
+            try:
+                out = subprocess.check_output([lspci], text=True, timeout=0.4)
+                for line in out.splitlines():
+                    if "VGA compatible controller" in line or "3D controller" in line or "Display controller" in line:
+                        label = line.split(":", 2)[-1].strip()
+                        lower = label.lower()
+                        if "amd" in lower or "radeon" in lower or "advanced micro devices" in lower:
+                            gpu_type = "amd"
+                        elif "intel" in lower:
+                            gpu_type = "intel"
+                        else:
+                            gpu_type = "other"
+                        return {"type": gpu_type, "label": label}
+            except Exception:
+                pass
+
+        return {"type": "unknown", "label": "iGPU"}
+
+    GPU_INFO = detect_gpu()
 
 
     def cpu_usage():
-        return round(psutil.cpu_percent(interval=0.15))
+        return round(psutil.cpu_percent(interval=0.1))
 
 
     def memory_usage():
@@ -116,31 +196,55 @@
         return f"{int(data.percent)}%{plug}"
 
 
+    def read_sysfs_gpu_busy():
+        cards = [f"/sys/class/drm/card{idx}/device" for idx in range(4)]
+        files = ["gpu_busy_percent", "gt_busy_percent"]
+        for card in cards:
+            for name in files:
+                path = f"{card}/{name}"
+                try:
+                    val = read_file(path)
+                    if val:
+                        num = float(val)
+                        if num >= 0:
+                            return str(int(round(num)))
+                except Exception:
+                    continue
+        return None
+
+
     def gpu_usage():
-        nvidia = shutil.which("nvidia-smi")
-        if not nvidia:
-            return "--"
-        try:
-            lines = (
-                subprocess.check_output(
-                    [
-                        nvidia,
-                        "--query-gpu=utilization.gpu",
-                        "--format=csv,noheader,nounits",
-                    ],
-                    text=True,
-                    timeout=0.4,
-                )
-                .strip()
-                .splitlines()
-            )
-            if lines:
-                value = lines[0].strip()
-                if value:
-                    return f"{value}%"
-        except Exception:
-            pass
-        return "--"
+        if GPU_INFO.get("type") == "nvidia":
+            nvidia = GPU_INFO.get("path")
+            if nvidia:
+                try:
+                    lines = (
+                        subprocess.check_output(
+                            [
+                                nvidia,
+                                "--query-gpu=utilization.gpu",
+                                "--format=csv,noheader,nounits",
+                            ],
+                            text=True,
+                            timeout=0.4,
+                        )
+                        .strip()
+                        .splitlines()
+                    )
+                    if lines:
+                        value = lines[0].strip()
+                        if value:
+                            return f"{value}%"
+                except Exception:
+                    pass
+            return "NVIDIA"
+
+        if GPU_INFO.get("type") in {"amd", "intel"}:
+            val = read_sysfs_gpu_busy()
+            if val is not None:
+                return f"{val}%"
+
+        return GPU_INFO.get("label") or "iGPU"
 
 
     stats = "CPU {cpu}% · MEM {mem}% · BAT {bat} · GPU {gpu}".format(
@@ -154,7 +258,11 @@
   '';
 in {
   imports = [
-    inputs.nixvim.homeManagerModules.nixvim
+    (
+      if inputs.nixvim ? homeModules
+      then inputs.nixvim.homeModules.nixvim
+      else inputs.nixvim.homeManagerModules.nixvim
+    )
   ];
 
   home = {
@@ -247,17 +355,19 @@ in {
       };
       colorschemes.catppuccin = {
         enable = true;
-        flavour = "macchiato";
-        integrations = {
-          cmp = true;
-          gitsigns = true;
-          telescope = true;
-          treesitter = true;
-          which_key = true;
-          indent_blankline = true;
-          nvimtree = true;
-          native_lsp = {
-            enabled = true;
+        settings = {
+          flavour = "macchiato";
+          integrations = {
+            cmp = true;
+            gitsigns = true;
+            telescope = true;
+            treesitter = true;
+            which_key = true;
+            indent_blankline = true;
+            nvimtree = true;
+            native_lsp = {
+              enabled = true;
+            };
           };
         };
       };
@@ -394,40 +504,45 @@ in {
         };
         treesitter = {
           enable = true;
-          indent = true;
-          ensureInstalled = [
-            "bash"
-            "c"
-            "cpp"
-            "fish"
-            "json"
-            "lua"
-            "markdown"
-            "markdown_inline"
-            "nix"
-            "python"
-            "regex"
-            "rust"
-            "toml"
-            "tsx"
-            "typescript"
-            "vim"
-            "vimdoc"
-            "yaml"
-          ];
+          settings = {
+            indent.enable = true;
+            ensure_installed = [
+              "bash"
+              "c"
+              "cpp"
+              "fish"
+              "json"
+              "lua"
+              "markdown"
+              "markdown_inline"
+              "nix"
+              "python"
+              "regex"
+              "rust"
+              "toml"
+              "tsx"
+              "typescript"
+              "vim"
+              "vimdoc"
+              "yaml"
+            ];
+          };
         };
         "nvim-tree" = {
           enable = true;
-          view.width = 32;
-          renderer = {
-            highlightGit = true;
-            indentMarkers.enable = true;
+          settings = {
+            view.width = 32;
+            renderer = {
+              highlight_git = true;
+              indent_markers.enable = true;
+            };
+            git.enable = true;
+            diagnostics.enable = true;
+            filters.custom = [".git"];
+            actions.open_file.resize_window = true;
           };
-          git.enable = true;
-          diagnostics.enable = true;
-          filters.custom = [".git"];
-          actions.openFile.resizeWindow = true;
         };
+        web-devicons.enable = true;
         gitsigns.enable = true;
         comment.enable = true;
         "which-key".enable = true;
@@ -446,21 +561,23 @@ in {
         cmp = {
           enable = true;
           autoEnableSources = true;
-          snippet.expand = "function(args) require('luasnip').lsp_expand(args.body) end";
-          sources = [
-            {name = "nvim_lsp";}
-            {name = "luasnip";}
-            {name = "path";}
-            {name = "buffer";}
-          ];
-          mapping = {
-            "<CR>" = "cmp.mapping.confirm({ select = true })";
-            "<C-Space>" = "cmp.mapping.complete()";
-            "<C-e>" = "cmp.mapping.abort()";
-            "<C-n>" = "cmp.mapping.select_next_item()";
-            "<C-p>" = "cmp.mapping.select_prev_item()";
-            "<Tab>" = "cmp.mapping.select_next_item()";
-            "<S-Tab>" = "cmp.mapping.select_prev_item()";
+          settings = {
+            snippet.expand = "function(args) require('luasnip').lsp_expand(args.body) end";
+            sources = [
+              {name = "nvim_lsp";}
+              {name = "luasnip";}
+              {name = "path";}
+              {name = "buffer";}
+            ];
+            mapping = {
+              "<CR>" = "cmp.mapping.confirm({ select = true })";
+              "<C-Space>" = "cmp.mapping.complete()";
+              "<C-e>" = "cmp.mapping.abort()";
+              "<C-n>" = "cmp.mapping.select_next_item()";
+              "<C-p>" = "cmp.mapping.select_prev_item()";
+              "<Tab>" = "cmp.mapping.select_next_item()";
+              "<S-Tab>" = "cmp.mapping.select_prev_item()";
+            };
           };
         };
         luasnip.enable = true;

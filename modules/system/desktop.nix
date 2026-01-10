@@ -4,6 +4,7 @@
     type = "gnome";
   },
 }: {
+  config,
   lib,
   pkgs,
   options,
@@ -110,10 +111,19 @@
 
   selectedProfile = frostflakeDesktop.type;
   hasProfile = builtins.hasAttr selectedProfile desktopProfiles;
+  fprintPamServiceFor = {
+    gnome = "gdm-password";
+    kde = "sddm";
+    xfce = "lightdm";
+    cosmic = "cosmic-greeter";
+  };
+  fprintPamConfig = mkIf (config.services.fprintd.enable && builtins.hasAttr selectedProfile fprintPamServiceFor) {
+    security.pam.services.${fprintPamServiceFor.${selectedProfile}}.fprintAuth = mkDefault true;
+  };
   selectedConfig =
     if hasProfile
     then desktopProfiles.${selectedProfile}
     else throw ''Unsupported desktop type "${selectedProfile}". Expected one of: ${builtins.concatStringsSep ", " (builtins.attrNames desktopProfiles)}'';
 in {
-  config = mkIf frostflakeDesktop.enable (mkMerge [commonConfig selectedConfig]);
+  config = mkIf frostflakeDesktop.enable (mkMerge [commonConfig selectedConfig fprintPamConfig]);
 }

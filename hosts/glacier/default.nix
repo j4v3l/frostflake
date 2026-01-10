@@ -10,6 +10,7 @@ in {
   imports = [
     ../common/darwin.nix
     ../../modules/system/ai.nix
+    ../../modules/system/secrets.nix
     inputs.home-manager.darwinModules.home-manager
     inputs."sops-nix".darwinModules.sops
   ];
@@ -33,6 +34,10 @@ in {
     enable = false;
     packages.enable = false;
     ollama.enable = false;
+  };
+  frostflake.secrets = {
+    enable = true;
+    pamU2F.enable = false;
   };
 
   system.stateVersion = 5;

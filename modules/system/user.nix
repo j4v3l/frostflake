@@ -14,6 +14,7 @@
   securityPrefs = user.security or {};
   sshPrefs = securityPrefs.ssh or {};
   requireWebauthn = securityPrefs.requireWebauthn or true;
+  sudoNeedsPassword = securityPrefs.sudoNeedsPassword or false;
   hardwareKeys = sshPrefs.hardwareKeys or [];
   softFallbackKeys = sshPrefs.softFallbackKeys or [];
   allowSoftFallback = sshPrefs.allowSoftFallback or false;
@@ -53,6 +54,6 @@ in {
 
   security.sudo = {
     enable = true;
-    wheelNeedsPassword = false;
+    wheelNeedsPassword = sudoNeedsPassword;
   };
 }
