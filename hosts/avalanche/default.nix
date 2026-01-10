@@ -79,5 +79,8 @@ in
           group = "root";
         };
       };
+
+      # Ensure Docker/NVIDIA runtime config is merged
+      services.dockerManager.enable = true;
     };
   }
