@@ -109,7 +109,7 @@ in {
       sops.defaultSopsFile = builtins.path {path = cfg.hostFile;};
     })
 
-    (mkIf (cfg.pamU2F.enable && pamSecretReady) {
+    (mkIf (cfg.pamU2F.enable && pamSecretAvailable) {
       sops.secrets = {
         pam_u2f_mappings = {
           sopsFile = builtins.path {path = cfg.sharedFile;};
