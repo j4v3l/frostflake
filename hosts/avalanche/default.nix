@@ -63,22 +63,9 @@ in
       users = {
         groups.plugdev.members = ["jager"];
         groups.docker.members = ["jager"];
-        mutableUsers = false;
         users.jager.openssh.authorizedKeys.keys = [
           "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHCsQ4NNDuuAj/NLrC9yXVoGRNU5DRTEqC2ybN+Y9Qjf jager@Javels-MacBook-Pro.local"
         ];
-        users.jager.hashedPasswordFile = "/run/secrets/jager-password";
-      };
-
-      frostflake.secrets.extraSecrets = {
-        "jager-password" = {
-          sopsFile = frostflakeRoot + "/secrets/hosts/avalanche.yaml";
-          key = "jager_password_hash";
-          path = "/run/secrets/jager-password";
-          mode = "0400";
-          owner = "root";
-          group = "root";
-        };
       };
 
       # Ensure Docker/NVIDIA runtime config is merged

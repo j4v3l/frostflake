@@ -6,6 +6,7 @@
   linuxHome = "/home/jager";
   darwinHome = "/Users/jager";
   shellPackage = pkgs: pkgs.zsh;
+  hashedPasswordFile = "/run/secrets/jager-password";
   extraGroups = [
     "wheel"
     "networkmanager"

@@ -28,6 +28,8 @@
   pamSecretAvailable = builtins.pathExists cfg.sharedFile;
   hostSecretReady = hostSecretAvailable && hasInfix "sops:" (builtins.readFile cfg.hostFile);
   pamSecretReady = pamSecretAvailable && hasInfix "sops:" (builtins.readFile cfg.sharedFile);
+  userPasswordKey = "jager_password_hash";
+  userPasswordPath = "/run/secrets/jager-password";
 in {
   options.frostflake.secrets = {
     enable = mkEnableOption "SOPS-Nix managed secrets" // {default = true;};
@@ -115,6 +117,19 @@ in {
           sopsFile = builtins.path {path = cfg.sharedFile;};
           inherit (cfg.pamU2F) key;
           path = pamTargetPath;
+          owner = "root";
+          group = "root";
+          mode = "0400";
+        };
+      };
+    })
+
+    (mkIf pamSecretAvailable {
+      sops.secrets = {
+        jager-password = {
+          sopsFile = builtins.path {path = cfg.sharedFile;};
+          key = userPasswordKey;
+          path = userPasswordPath;
           owner = "root";
           group = "root";
           mode = "0400";
