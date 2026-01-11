@@ -21,8 +21,18 @@ in
       ./virtual-machines.nix
     ];
     extraConfig = {
-      boot.loader.systemd-boot.enable = true;
-      boot.loader.efi.canTouchEfiVariables = true;
+      boot = {
+        loader = {
+          systemd-boot.enable = false;
+          grub = {
+            enable = true;
+            efiSupport = true;
+            device = "nodev";
+            gfxmodeEfi = "2560x1440";
+          };
+          efi.canTouchEfiVariables = true;
+        };
+      };
 
       powerManagement.cpuFreqGovernor = lib.mkDefault "powersave";
       hardware.gpu.profile = "intel";
