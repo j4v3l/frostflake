@@ -34,6 +34,7 @@ in
       hardware.nvidia-container-toolkit.enable = true;
       hardware.gpu.profile = "nvidia";
       frostflake = {
+        network.hosts.enable = true;
         ai = {
           enable = true;
           packages.enable = true;

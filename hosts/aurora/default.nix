@@ -59,6 +59,7 @@ in
       };
 
       frostflake = {
+        network.hosts.enable = true;
         security.webauthn = {
           enable = false;
         };

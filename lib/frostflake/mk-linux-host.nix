@@ -20,12 +20,14 @@
   baseImports = [
     desktopModule
     (frostflakeRoot + "/modules/system/ai.nix")
+    (frostflakeRoot + "/modules/system/hosts.nix")
     (frostflakeRoot + "/modules/system/linux-base.nix")
     (frostflakeRoot + "/modules/system/vpn.nix")
     (frostflakeRoot + "/modules/system/security/webauthn.nix")
     (frostflakeRoot + "/modules/system/secrets.nix")
     (frostflakeRoot + "/modules/system/user.nix")
     (frostflakeRoot + "/modules/hardware/gpu.nix")
+    (frostflakeRoot + "/hosts/common/hosts.nix")
     inputs."home-manager".nixosModules."home-manager"
     inputs."sops-nix".nixosModules.sops
   ];
