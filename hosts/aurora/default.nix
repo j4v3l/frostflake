@@ -42,12 +42,15 @@ in
         sudo.fprintAuth = true;
         sddm.fprintAuth = true;
         "sddm-autologin".fprintAuth = lib.mkForce false;
+        gdm-password.fprintAuth = true;
+        lightdm.fprintAuth = true;
+        "cosmic-greeter".fprintAuth = true;
+        "polkit-1".fprintAuth = true;
       };
 
       frostflake = {
         security.webauthn = {
-          enable = true;
-          enforcePam = false;
+          enable = false;
         };
         ai = {
           enable = false;
