@@ -20,6 +20,9 @@
   secretsCfg = config.frostflake.secrets;
   hostSops = secretsCfg.hostFile;
   nordvpnPackage = pkgs.nordvpn or null;
+  tailscaleSopsAvailable = builtins.pathExists cfg.tailscale.authKeySopsFile;
+  nordvpnSopsAvailable = builtins.pathExists cfg.nordvpn.tokenSopsFile;
+  wireguardSopsAvailable = builtins.pathExists cfg.wireguard.privateKeySopsFile;
 
   mkSecret = {
     name,
@@ -79,7 +82,17 @@ in {
       extraFlags = mkOption {
         type = types.listOf types.str;
         default = [];
-        description = "Extra flags passed to tailscaled.";
+        description = "Deprecated; use extraUpFlags instead.";
+      };
+      extraUpFlags = mkOption {
+        type = types.listOf types.str;
+        default = [];
+        description = "Extra flags passed to `tailscale up`.";
+      };
+      extraSetFlags = mkOption {
+        type = types.listOf types.str;
+        default = [];
+        description = "Extra flags passed to `tailscale set`.";
       };
     };
 
@@ -127,6 +140,14 @@ in {
 
     wireguard = {
       enable = mkEnableOption "Enable wg-quick interface";
+      mode = mkOption {
+        type = types.enum [
+          "client"
+          "server"
+        ];
+        default = "client";
+        description = "Use client mode to avoid opening a listen port; set server to accept incoming connections.";
+      };
       interfaceName = mkOption {
         type = types.str;
         default = "wg0";
@@ -202,21 +223,21 @@ in {
     # Secrets rendered via SOPS
     {
       frostflake.secrets.extraSecrets = mkMerge [
-        (mkIf cfg.tailscale.enable (mkSecret {
+        (mkIf (cfg.tailscale.enable && tailscaleSopsAvailable) (mkSecret {
           name = "tailscale_authkey";
           sopsFile = cfg.tailscale.authKeySopsFile;
           key = cfg.tailscale.authKeyKey;
           path = cfg.tailscale.authKeyPath;
         }))
 
-        (mkIf cfg.nordvpn.enable (mkSecret {
+        (mkIf (cfg.nordvpn.enable && nordvpnSopsAvailable) (mkSecret {
           name = "nordvpn_token";
           sopsFile = cfg.nordvpn.tokenSopsFile;
           key = cfg.nordvpn.tokenKey;
           path = cfg.nordvpn.tokenPath;
         }))
 
-        (mkIf cfg.wireguard.enable (mkSecret {
+        (mkIf (cfg.wireguard.enable && wireguardSopsAvailable) (mkSecret {
           name = "wireguard_private_key";
           sopsFile = cfg.wireguard.privateKeySopsFile;
           key = cfg.wireguard.privateKeyKey;
@@ -231,10 +252,19 @@ in {
         enable = true;
         inherit (cfg.tailscale) useRoutingFeatures;
         authKeyFile = cfg.tailscale.authKeyPath;
-        extraSetFlags = cfg.tailscale.extraFlags;
+        extraUpFlags = cfg.tailscale.extraUpFlags ++ cfg.tailscale.extraFlags;
+        inherit (cfg.tailscale) extraSetFlags;
         package = pkgs.tailscale;
+        openFirewall = lib.mkDefault true;
       };
       environment.systemPackages = [pkgs.tailscale];
+      environment.shellAliases = {
+        ts-up = "sudo tailscale up";
+        ts-down = "sudo tailscale down";
+        ts-status = "tailscale status";
+        ts-ip = "tailscale ip";
+        ts-logs = "sudo journalctl -u tailscaled -b";
+      };
     })
 
     (mkIf (cfg.nordvpn.enable && cfg.nordvpn.package != null) {
@@ -267,6 +297,8 @@ in {
         ];
         serviceConfig = {
           Type = "oneshot";
+          Restart = "on-failure";
+          RestartSec = 10;
           Environment = "PATH=${
             lib.makeBinPath [
               cfg.nordvpn.package
@@ -284,6 +316,12 @@ in {
             fi
 
             token="$(cat "$token_file")"
+            for attempt in $(seq 1 10); do
+              if nordvpn status >/dev/null 2>&1; then
+                break
+              fi
+              sleep 1
+            done
             if ! nordvpn account >/dev/null 2>&1; then
               nordvpn login --token "$token"
             fi
@@ -297,13 +335,26 @@ in {
       };
 
       environment.systemPackages = [cfg.nordvpn.package];
+      environment.shellAliases = {
+        nv-connect = "sudo nordvpn connect";
+        nv-disconnect = "sudo nordvpn disconnect";
+        nv-status = "nordvpn status";
+        nv-login = "sudo systemctl restart nordvpn-login";
+        nv-logs = "sudo journalctl -u nordvpnd -b";
+      };
     })
 
-    (mkIf cfg.wireguard.enable {
+    (mkIf cfg.wireguard.enable (let
+      wgInterface = cfg.wireguard.interfaceName;
+      wgListenPort =
+        if cfg.wireguard.mode == "client"
+        then null
+        else cfg.wireguard.listenPort;
+    in {
       networking.wg-quick.interfaces.${cfg.wireguard.interfaceName} = {
         address = cfg.wireguard.addresses;
         privateKeyFile = cfg.wireguard.privateKeyPath;
-        inherit (cfg.wireguard) listenPort;
+        listenPort = wgListenPort;
         peers =
           map (
             peer:
@@ -318,12 +369,20 @@ in {
 
       networking.firewall.allowedUDPPorts =
         optional (
-          cfg.wireguard.listenPort != null
+          wgListenPort != null
         )
-        cfg.wireguard.listenPort;
+        wgListenPort;
 
       environment.systemPackages = [pkgs.wireguard-tools];
-    })
+      environment.shellAliases = {
+        wg-up = "sudo systemctl start wg-quick-${wgInterface}.service";
+        wg-down = "sudo systemctl stop wg-quick-${wgInterface}.service";
+        wg-restart = "sudo systemctl restart wg-quick-${wgInterface}.service";
+        wg-status = "systemctl status wg-quick-${wgInterface}.service";
+        wg-logs = "sudo journalctl -u wg-quick-${wgInterface}.service -b";
+        wg-show = "sudo wg show ${wgInterface}";
+      };
+    }))
 
     # Helper warnings when secrets are missing
     {
