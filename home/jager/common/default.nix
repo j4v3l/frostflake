@@ -644,6 +644,12 @@ in {
           gl = "git pull";
           nclean = "sudo nix-collect-garbage -d && nix store optimise";
           nhclean = "nh clean all --keep-since 7d --keep 5";
+          nhos = "nh os switch";
+          nhos-boot = "nh os boot";
+          nhos-test = "nh os test";
+          nhhome = "nh home switch";
+          nhdarwin = "nh darwin switch";
+          nhdiff = "nh diff";
           nfu = "nix flake update";
           pkgupdate = "nix flake update";
           nfmt = "alejandra .";

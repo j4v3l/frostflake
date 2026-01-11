@@ -132,7 +132,7 @@ in {
         enable =
           mkEnableOption "NH helper CLI + garbage collection timer"
           // {
-            default = false;
+            default = true;
           };
         flake = mkOption {
           type = types.nullOr types.str;
