@@ -10,7 +10,7 @@ in
   mkLinuxHost {
     inherit inputs frostflakeRoot frostflakeUser;
     hostName = "aurora";
-    desktopProfile = "kde";
+    desktopProfile = "cosmic";
     homeModule = import ../../home/jager/linux/default.nix;
     extraModules = [
       ../../modules/system/docker.nix

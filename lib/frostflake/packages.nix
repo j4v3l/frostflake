@@ -63,6 +63,7 @@
       glances
       ghostty
       kitty
+      go
       nil
       nixd
       nh

@@ -62,9 +62,10 @@ in {
 
   dconf.settings = {
     "org/gnome/desktop/interface" = {
-      color-scheme = "default";
+      color-scheme = "prefer-dark";
       clock-format = "12h";
       show-battery-percentage = true;
+      gtk-theme = "Adwaita-dark";
       cursor-theme = "Adwaita";
       cursor-size = 24;
     };
