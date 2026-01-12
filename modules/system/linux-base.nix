@@ -99,6 +99,8 @@ in {
         type = types.lines;
         default = ''
           ACTION=="add", SUBSYSTEM=="sound", ATTRS{idVendor}=="352f", ATTRS{idProduct}=="0100", ATTRS{product}=="PD400X Podcast Microphone", SYMLINK+="snd/by-id/PD400X"
+          ACTION=="add", SUBSYSTEM=="hidraw", ATTRS{idVendor}=="352f", ATTRS{idProduct}=="0100", TAG+="uaccess", MODE="0660"
+          ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="352f", ATTR{idProduct}=="0100", TEST=="power/control", ATTR{power/control}="on"
           KERNEL=="ttyACM[0-9]*", MODE:="0660", GROUP:="dialout"
           KERNEL=="ttyUSB[0-9]*", MODE:="0660", GROUP:="dialout"
         '';

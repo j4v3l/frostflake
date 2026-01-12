@@ -74,6 +74,12 @@ in
           packages.enable = false;
           ollama.enable = false;
         };
+        base.audio.pipewire = {
+          sampleRate = 96000;
+          allowedRates = [96000 48000];
+          latency = "128/96000";
+          resampleQuality = 10;
+        };
         base.tooling.nh = {
           enable = true;
           flake = "/etc/nixos";
