@@ -16,7 +16,12 @@ in
       ../../modules/system/docker.nix
       ../../modules/system/vms.nix
       ../../modules/hardware/gpu.nix
+      inputs.nixos-hardware.nixosModules.common-pc-laptop
+      inputs.nixos-hardware.nixosModules.common-pc-ssd
+      inputs.nixos-hardware.nixosModules.common-gpu-intel
+      inputs.nixos-hardware.nixosModules.common-hidpi
       ./hardware-configuration.nix
+      ./hibernate.nix
       ./containers.nix
       ./virtual-machines.nix
     ];
@@ -36,6 +41,7 @@ in
 
       powerManagement.cpuFreqGovernor = lib.mkDefault "powersave";
       hardware.gpu.profile = "intel";
+      hardware.enableRedistributableFirmware = true;
       services = {
         tlp.enable = true;
         power-profiles-daemon.enable = false;
