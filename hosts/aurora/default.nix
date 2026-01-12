@@ -40,12 +40,16 @@ in
       };
 
       powerManagement.cpuFreqGovernor = lib.mkDefault "powersave";
-      hardware.gpu.profile = "intel";
-      hardware.enableRedistributableFirmware = true;
+      hardware = {
+        gpu.profile = "intel";
+        enableRedistributableFirmware = true;
+        sensor.iio.enable = true;
+      };
       services = {
         tlp.enable = true;
         power-profiles-daemon.enable = false;
         fprintd.enable = true;
+        colord.enable = true;
       };
 
       # Allow plain password auth during initial bring-up; keep WebAuthn tooling installed without PAM enforcement.
