@@ -67,6 +67,10 @@
         environment.systemPackages = with pkgs; [
           kdePackages.kdeconnect-kde
         ];
+        environment.sessionVariables = {
+          QT_AUTO_SCREEN_SCALE_FACTOR = mkDefault "1";
+          QT_ENABLE_HIGHDPI_SCALING = mkDefault "1";
+        };
         xdg.portal.extraPortals = [kdePortal];
       }
     ];
@@ -89,6 +93,10 @@
       (mkDesktopEnable "cosmic")
       (setDisplayAttr ["cosmic-greeter" "enable"] true)
       {
+        environment.sessionVariables = {
+          QT_AUTO_SCREEN_SCALE_FACTOR = mkDefault "1";
+          QT_ENABLE_HIGHDPI_SCALING = mkDefault "1";
+        };
         xdg.portal.extraPortals = cosmicPortals;
       }
     ];

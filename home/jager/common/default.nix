@@ -277,6 +277,7 @@ in {
       {
         EDITOR = "nvim";
         LESS = "-FRSX";
+        DIRENV_LOG_FORMAT = "";
       }
       // lib.optionalAttrs (flakePath != null) {
         FLAKE = flakePath;
@@ -604,6 +605,7 @@ in {
       history.size = 50000;
       history.path = "${homeDir}/.zsh_history";
       initContent = ''
+        export DIRENV_LOG_FORMAT=""
         eval "$(direnv hook zsh)"
         if [ -z "''${TMUX_THEME:-}" ]; then
           if command -v defaults >/dev/null 2>&1; then
@@ -662,6 +664,10 @@ in {
           yubi-ssh-key = "make -C ${defaultFlakeRef} yubi-ssh-key";
           yk-info = "ykman info";
           yk-oath-list = "ykman oath accounts list";
+          fpenroll = "fprintd-enroll";
+          fpverify = "fprintd-verify";
+          fpdelete = "fprintd-delete";
+          fplist = "fprintd-list";
           tmls = "tmux list-sessions";
           tma = "tmux attach -t";
           tmn = "tmux new -s";
@@ -775,6 +781,12 @@ in {
       "kitty/theme.conf".source = ./kitty/theme.conf;
       "kitty/themes/frostflake-dark.conf".source = ./kitty/themes/frostflake-dark.conf;
       "kitty/themes/frostflake-light.conf".source = ./kitty/themes/frostflake-light.conf;
+
+      "direnv/direnv.toml".text = ''
+        [global]
+        log_format = "-"
+        hide_env_diff = true
+      '';
 
       "ghostty/config".source = ./ghostty/config;
       "ghostty/config.light".source = ./ghostty/config.light;

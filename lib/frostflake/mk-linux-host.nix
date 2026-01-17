@@ -6,31 +6,34 @@
   hostName,
   desktopProfile ? "gnome",
   desktopEnable ? true,
+  hidpiEnable ? desktopEnable,
   extraModules ? [],
   extraConfig ? {},
   ...
 }: let
-  inherit (lib) mkMerge;
+  inherit (lib) mkMerge optional;
   desktopModule = import (frostflakeRoot + "/modules/system/desktop.nix") {
     frostflakeDesktop = {
       enable = desktopEnable;
       type = desktopProfile;
     };
   };
-  baseImports = [
-    desktopModule
-    (frostflakeRoot + "/modules/system/ai.nix")
-    (frostflakeRoot + "/modules/system/hosts.nix")
-    (frostflakeRoot + "/modules/system/linux-base.nix")
-    (frostflakeRoot + "/modules/system/vpn.nix")
-    (frostflakeRoot + "/modules/system/security/webauthn.nix")
-    (frostflakeRoot + "/modules/system/secrets.nix")
-    (frostflakeRoot + "/modules/system/user.nix")
-    (frostflakeRoot + "/modules/hardware/gpu.nix")
-    (frostflakeRoot + "/hosts/common/hosts.nix")
-    inputs."home-manager".nixosModules."home-manager"
-    inputs."sops-nix".nixosModules.sops
-  ];
+  baseImports =
+    [
+      desktopModule
+      (frostflakeRoot + "/modules/system/ai.nix")
+      (frostflakeRoot + "/modules/system/hosts.nix")
+      (frostflakeRoot + "/modules/system/linux-base.nix")
+      (frostflakeRoot + "/modules/system/vpn.nix")
+      (frostflakeRoot + "/modules/system/security/webauthn.nix")
+      (frostflakeRoot + "/modules/system/secrets.nix")
+      (frostflakeRoot + "/modules/system/user.nix")
+      (frostflakeRoot + "/modules/hardware/gpu.nix")
+      (frostflakeRoot + "/hosts/common/hosts.nix")
+      inputs."home-manager".nixosModules."home-manager"
+      inputs."sops-nix".nixosModules.sops
+    ]
+    ++ optional hidpiEnable inputs.nixos-hardware.nixosModules.common-hidpi;
   baseConfig = {
     networking.hostName = hostName;
 

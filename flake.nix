@@ -58,7 +58,6 @@
 
     devShells = forAllSystems ({
       pkgs,
-      system,
       frostflakePackages,
       ...
     }: {
@@ -67,7 +66,6 @@
         packages = frostflakePackages.devShell;
         shellHook = ''
           export NIX_CONFIG="experimental-features = nix-command flakes"
-          echo "Loaded frostflake dev shell (${system}) for $USER"
         '';
       };
     });

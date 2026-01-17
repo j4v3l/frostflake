@@ -221,6 +221,19 @@ in {
         nerd-fonts.hack
       ];
 
+      fonts.fontconfig = {
+        enable = mkDefault true;
+        antialias = mkDefault true;
+        hinting = {
+          enable = mkDefault true;
+          style = mkDefault "slight";
+        };
+        subpixel = {
+          rgba = mkDefault "rgb";
+          lcdfilter = mkDefault "default";
+        };
+      };
+
       environment.variables = {
         XCURSOR_THEME = mkDefault "Adwaita";
         XCURSOR_SIZE = mkDefault "24";

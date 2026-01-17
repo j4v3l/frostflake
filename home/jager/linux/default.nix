@@ -57,6 +57,10 @@
     cursorFg = "#f7f9fc";
     bold = "#d14a2a";
   };
+
+  hidpiFontDpi = 144;
+  xfceXftDpi = hidpiFontDpi * 1024;
+  gnomeTextScale = 1.5;
 in {
   imports = [../common/default.nix];
 
@@ -68,6 +72,10 @@ in {
       gtk-theme = "Adwaita-dark";
       cursor-theme = "Adwaita";
       cursor-size = 24;
+      text-scaling-factor = gnomeTextScale;
+    };
+    "org/gnome/mutter" = {
+      experimental-features = ["scale-monitor-framebuffer"];
     };
     "org/gnome/desktop/wm/preferences" = {
       button-layout = "appmenu:minimize,maximize,close";
@@ -124,6 +132,25 @@ in {
       default-size-columns = 110;
       default-size-rows = 30;
     };
+  };
+
+  xdg.configFile = {
+    "kcmfonts".text = ''
+      [General]
+      forceFontDPI=${toString hidpiFontDpi}
+    '';
+    "xfce4/xfconf/xfce-perchannel-xml/xsettings.xml".text = ''
+      <?xml version="1.0" encoding="UTF-8"?>
+      <channel name="xsettings" version="1.0">
+        <property name="Xft" type="empty">
+          <property name="Antialias" type="int" value="1"/>
+          <property name="Hinting" type="int" value="1"/>
+          <property name="HintStyle" type="string" value="hintslight"/>
+          <property name="RGBA" type="string" value="rgb"/>
+          <property name="DPI" type="int" value="${toString xfceXftDpi}"/>
+        </property>
+      </channel>
+    '';
   };
 
   xdg.mime.enable = lib.mkDefault true;

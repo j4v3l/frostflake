@@ -1,6 +1,7 @@
 {
   inputs,
   lib,
+  pkgs,
   frostflakeRoot,
   frostflakeUser,
   ...
@@ -19,7 +20,6 @@ in
       inputs.nixos-hardware.nixosModules.common-pc-laptop
       inputs.nixos-hardware.nixosModules.common-pc-ssd
       inputs.nixos-hardware.nixosModules.common-gpu-intel
-      inputs.nixos-hardware.nixosModules.common-hidpi
       ./hardware-configuration.nix
       ./hibernate.nix
       ./containers.nix
@@ -51,6 +51,10 @@ in
         fprintd.enable = true;
         colord.enable = true;
       };
+
+      environment.systemPackages = [
+        pkgs.fprintd
+      ];
 
       # Allow plain password auth during initial bring-up; keep WebAuthn tooling installed without PAM enforcement.
       security.pam.services = {
