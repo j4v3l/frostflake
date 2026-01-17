@@ -215,22 +215,32 @@ in {
         };
       };
 
-      fonts.packages = with pkgs; [
-        nerd-fonts.fira-code
-        nerd-fonts.jetbrains-mono
-        nerd-fonts.hack
-      ];
-
-      fonts.fontconfig = {
-        enable = mkDefault true;
-        antialias = mkDefault true;
-        hinting = {
+      fonts = {
+        packages = with pkgs; [
+          nerd-fonts.fira-code
+          nerd-fonts.jetbrains-mono
+          nerd-fonts.hack
+          nerd-fonts.symbols-only
+          noto-fonts-color-emoji
+        ];
+        fontDir.enable = mkDefault true;
+        fontconfig = {
           enable = mkDefault true;
-          style = mkDefault "slight";
-        };
-        subpixel = {
-          rgba = mkDefault "rgb";
-          lcdfilter = mkDefault "default";
+          antialias = mkDefault true;
+          hinting = {
+            enable = mkDefault true;
+            style = mkDefault "slight";
+          };
+          subpixel = {
+            rgba = mkDefault "rgb";
+            lcdfilter = mkDefault "default";
+          };
+          defaultFonts.monospace = [
+            "JetBrainsMono Nerd Font"
+            "Symbols Nerd Font Mono"
+            "Symbols Nerd Font"
+            "Noto Color Emoji"
+          ];
         };
       };
 
