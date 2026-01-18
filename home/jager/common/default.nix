@@ -661,6 +661,12 @@ in {
           nhdiff = "nh diff";
           nfu = "nix flake update";
           pkgupdate = "nix flake update";
+          nd = "nix develop";
+          ndgo = "nix develop ${defaultFlakeRef}#golang";
+          ndrs = "nix develop ${defaultFlakeRef}#rust";
+          ndpy = "nix develop ${defaultFlakeRef}#python";
+          ndc = "nix develop ${defaultFlakeRef}#c";
+          ndlua = "nix develop ${defaultFlakeRef}#lua";
           nfmt = "alejandra .";
           ncheck = "statix check . && deadnix";
           yubi-pam-enroll = "make -C ${defaultFlakeRef} yubi-pam-enroll";

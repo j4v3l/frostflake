@@ -60,13 +60,70 @@
       pkgs,
       frostflakePackages,
       ...
-    }: {
-      default = pkgs.mkShell {
-        name = "frostflake";
-        packages = frostflakePackages.devShell;
-        shellHook = ''
-          export NIX_CONFIG="experimental-features = nix-command flakes"
-        '';
+    }: let
+      basePackages = frostflakePackages.devShell;
+      shellHook = ''
+        export NIX_CONFIG="experimental-features = nix-command flakes"
+      '';
+      mkDevShell = {
+        name,
+        extraPackages ? [],
+      }:
+        pkgs.mkShell {
+          inherit name shellHook;
+          packages = basePackages ++ extraPackages;
+        };
+      cDebugger =
+        if pkgs.stdenv.hostPlatform.isDarwin
+        then pkgs.lldb
+        else pkgs.gdb;
+      goPackages = with pkgs; [
+        go
+        gopls
+        golangci-lint
+      ];
+      rustPackages = with pkgs; [
+        rust-analyzer
+      ];
+      pythonPackages = with pkgs; [
+        python3
+        uv
+        ruff
+      ];
+      cPackages =
+        (with pkgs; [
+          clang
+          cmake
+          gnumake
+          pkg-config
+        ])
+        ++ [cDebugger];
+      luaPackages = with pkgs; [
+        lua
+        lua-language-server
+        luarocks
+      ];
+    in {
+      default = mkDevShell {name = "frostflake";};
+      golang = mkDevShell {
+        name = "frostflake-golang";
+        extraPackages = goPackages;
+      };
+      rust = mkDevShell {
+        name = "frostflake-rust";
+        extraPackages = rustPackages;
+      };
+      python = mkDevShell {
+        name = "frostflake-python";
+        extraPackages = pythonPackages;
+      };
+      c = mkDevShell {
+        name = "frostflake-c";
+        extraPackages = cPackages;
+      };
+      lua = mkDevShell {
+        name = "frostflake-lua";
+        extraPackages = luaPackages;
       };
     });
 
