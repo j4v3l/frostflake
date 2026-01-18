@@ -70,6 +70,7 @@ in {
       clock-format = "12h";
       show-battery-percentage = true;
       gtk-theme = "Adwaita-dark";
+      icon-theme = "Adwaita";
       cursor-theme = "Adwaita";
       cursor-size = 24;
       text-scaling-factor = gnomeTextScale;

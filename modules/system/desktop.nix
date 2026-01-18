@@ -48,9 +48,11 @@
         programs.dconf.enable = true;
         services.gnome.gnome-keyring.enable = true;
         environment.systemPackages = with pkgs; [
+          adwaita-icon-theme
           gnomeExtensions.appindicator
           gnomeExtensions.blur-my-shell
           gnome-tweaks
+          gnome-themes-extra
         ];
         xdg.portal.extraPortals = with pkgs; [
           xdg-desktop-portal-gnome

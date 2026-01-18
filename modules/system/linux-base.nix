@@ -189,7 +189,11 @@ in {
         hardwareClockInLocalTime = mkDefault false;
       };
       i18n.defaultLocale = mkDefault "en_US.UTF-8";
-      console.keyMap = mkDefault "us";
+      console = {
+        keyMap = mkDefault "us";
+        font = mkDefault "ter-116n";
+        packages = [pkgs.terminus-nerdfont];
+      };
 
       networking.networkmanager.enable = true;
 

@@ -108,6 +108,7 @@
     then
       (with pkgs; [
         brave
+        blackbox-terminal
         gnome-terminal
         tailscale
         wireguard-tools

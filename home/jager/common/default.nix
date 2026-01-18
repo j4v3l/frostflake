@@ -733,14 +733,14 @@ in {
         set -g pane-active-border-style "fg=${palette.accent}"
         set -g display-panes-colour ${palette.muted}
         set -g display-panes-active-colour ${palette.accent}
-        set -g status-interval 1
+        set -g status-interval 5
         set -g status-justify centre
         set -g status-left-length 40
-        set -g status-right-length 100
+        set -g status-right-length 90
         setw -g window-status-format " #[fg=${palette.muted}]#I #[fg=${palette.fg}]#W "
         setw -g window-status-current-format " #[fg=${palette.accent}]#I #[fg=${palette.fg},bold]#W "
-        set -g status-left "#[fg=${palette.accent},bold] #[fg=${palette.fg}]#S #[fg=${palette.muted}]#H"
-        set -g status-right "#[fg=${palette.warn}]#{?client_prefix,⌘ ,} #[fg=${palette.fg}]#(${statsCommand}) #[fg=${palette.muted}]· #[fg=${palette.fg}]%Y-%m-%d %H:%M"
+        set -g status-left "#[fg=${palette.accent},bold] #[fg=${palette.fg}]#S #{?window_zoomed_flag,#[fg=${palette.warn}]Z ,}#[fg=${palette.muted}]#H"
+        set -g status-right "#{?#{>=:#{client_width},120},#[fg=${palette.warn}]#{?client_prefix,⌘ ,} #[fg=${palette.fg}]#(${statsCommand}) #[fg=${palette.muted}]· #[fg=${palette.fg}]%Y-%m-%d %H:%M,#{?#{>=:#{client_width},90},#[fg=${palette.warn}]#{?client_prefix,⌘ ,} #[fg=${palette.fg}]%Y-%m-%d %H:%M,#[fg=${palette.warn}]#{?client_prefix,⌘ ,}#[fg=${palette.fg}]%H:%M}}"
         bind r source-file ~/.config/tmux/tmux.conf \; display-message "Frostflake tmux reloaded"
       '';
     };
