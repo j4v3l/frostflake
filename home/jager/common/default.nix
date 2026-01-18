@@ -631,6 +631,9 @@ in {
           fi
         fi
         if command -v tmux >/dev/null 2>&1; then
+          if tmux has-session -t frostflake >/dev/null 2>&1; then
+            tmux set-environment -g TMUX_THEME "$TMUX_THEME"
+          fi
           if [ -z "$TMUX" ] && [ -t 0 ]; then
             export TMUX_AUTO=1
             tmux attach -t frostflake || tmux new -s frostflake
@@ -703,7 +706,7 @@ in {
 
     tmux = let
       palette = {
-        bg = "default";
+        bg = "#{?#{==:#{environ:TMUX_THEME},light},colour254,default}";
         fg = "#{?#{==:#{environ:TMUX_THEME},light},colour0,colour15}";
         accent = "colour4";
         muted = "colour8";
