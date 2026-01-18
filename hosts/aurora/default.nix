@@ -61,6 +61,8 @@ in
         pkgs.fprintd
       ];
 
+      home-manager.backupFileExtension = "hm-bak";
+
       # Allow plain password auth during initial bring-up; keep WebAuthn tooling installed without PAM enforcement.
       security.pam.services = lib.mkMerge [
         {

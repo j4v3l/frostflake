@@ -1,4 +1,8 @@
-{lib, pkgs, ...}: let
+{
+  lib,
+  pkgs,
+  ...
+}: let
   frostflakeProfileDark = "c2c8a1f6-7b7f-42d0-8464-55b91dd6276a";
   frostflakeProfileLight = "7c7a7c31-6f2d-46b7-aef8-4a84c9e7d807";
   frostflakeProfileDarkKey = "org/gnome/terminal/legacy/profiles:/:${frostflakeProfileDark}";
