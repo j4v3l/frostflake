@@ -61,8 +61,6 @@
       eza
       fd
       glances
-      ghostty
-      kitty
       go
       nil
       nixd

@@ -777,21 +777,11 @@ in {
     configFile = {
       "starship.toml".source = ./starship.toml;
 
-      "kitty/kitty.conf".source = ./kitty/kitty.conf;
-      "kitty/theme.conf".source = ./kitty/theme.conf;
-      "kitty/themes/frostflake-dark.conf".source = ./kitty/themes/frostflake-dark.conf;
-      "kitty/themes/frostflake-light.conf".source = ./kitty/themes/frostflake-light.conf;
-
       "direnv/direnv.toml".text = ''
         [global]
         log_format = "-"
         hide_env_diff = true
       '';
-
-      "ghostty/config".source = ./ghostty/config;
-      "ghostty/config.light".source = ./ghostty/config.light;
-      "ghostty/themes/frostflake-dark".source = ./ghostty/themes/frostflake-dark;
-      "ghostty/themes/frostflake-light".source = ./ghostty/themes/frostflake-light;
     };
   };
 }

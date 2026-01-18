@@ -1,4 +1,4 @@
-{lib, ...}: let
+{lib, pkgs, ...}: let
   frostflakeProfileDark = "c2c8a1f6-7b7f-42d0-8464-55b91dd6276a";
   frostflakeProfileLight = "7c7a7c31-6f2d-46b7-aef8-4a84c9e7d807";
   frostflakeProfileDarkKey = "org/gnome/terminal/legacy/profiles:/:${frostflakeProfileDark}";
@@ -75,6 +75,14 @@ in {
       cursor-size = 24;
       text-scaling-factor = gnomeTextScale;
     };
+    "com/raggesilver/BlackBox" = {
+      use-system-font = false;
+      font = "JetBrainsMono Nerd Font 12";
+      theme-dark = "Adwaita-dark";
+      opacity = 1.0;
+      padding = 6;
+      scrollbar-policy = "never";
+    };
     "org/gnome/mutter" = {
       experimental-features = ["scale-monitor-framebuffer"];
     };
@@ -133,6 +141,14 @@ in {
       default-size-columns = 110;
       default-size-rows = 30;
     };
+  };
+
+  home.pointerCursor = {
+    name = "Adwaita";
+    package = pkgs.adwaita-icon-theme;
+    size = 24;
+    gtk.enable = true;
+    x11.enable = true;
   };
 
   xdg.configFile = {
