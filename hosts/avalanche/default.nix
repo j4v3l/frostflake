@@ -24,17 +24,17 @@ in
     extraConfig = {
       # Force cgroup v1 for NVIDIA Docker compatibility and nest all boot options
       boot = {
-        kernelParams = ["systemd.unified_cgroup_hierarchy=0"];
+        kernelParams = [
+          "systemd.unified_cgroup_hierarchy=0"
+          "usbcore.autosuspend=-1"
+        ];
         loader.systemd-boot.enable = true;
         loader.efi.canTouchEfiVariables = true;
       };
       # Enable Docker and NVIDIA runtime support
-      virtualisation.docker.enable = true;
-
       hardware.nvidia-container-toolkit.enable = true;
       hardware.gpu.profile = "nvidia";
       frostflake = {
-        network.hosts.enable = true;
         ai = {
           enable = true;
           packages.enable = true;
@@ -57,20 +57,23 @@ in
 
       home-manager.backupFileExtension = "hm-bak";
 
-      services.displayManager.autoLogin.enable = false;
+      services = {
+        displayManager.autoLogin.enable = false;
+        udev.extraRules = ''
+          ACTION=="add", SUBSYSTEM=="usb", TEST=="power/control", ATTR{power/control}="on"
+        '';
+        # Ensure Docker/NVIDIA runtime config is merged
+        dockerManager.enable = true;
+      };
 
       # Container and VM definitions now live in ./containers.nix and ./virtual-machines.nix
 
       users = {
         groups.plugdev.members = ["jager"];
-        groups.docker.members = ["jager"];
         users.jager.openssh.authorizedKeys.keys = [
           "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHCsQ4NNDuuAj/NLrC9yXVoGRNU5DRTEqC2ybN+Y9Qjf jager@Javels-MacBook-Pro.local"
         ];
       };
-
-      # Ensure Docker/NVIDIA runtime config is merged
-      services.dockerManager.enable = true;
 
       environment.systemPackages = [
         pkgs.nvidia-container-toolkit

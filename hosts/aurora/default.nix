@@ -47,6 +47,10 @@ in
       };
       services = {
         tlp.enable = true;
+        tlp.settings = {
+          # Yubico vendor ID (FIDO keys) - keep out of USB autosuspend.
+          USB_BLACKLIST = "1050:*";
+        };
         power-profiles-daemon.enable = false;
         fprintd.enable = true;
         colord.enable = true;
@@ -73,7 +77,6 @@ in
       };
 
       frostflake = {
-        network.hosts.enable = true;
         security.webauthn = {
           enable = false;
         };
