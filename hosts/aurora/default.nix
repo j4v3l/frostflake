@@ -7,11 +7,12 @@
   ...
 }: let
   mkLinuxHost = import (frostflakeRoot + "/lib/frostflake/mk-linux-host.nix") {inherit lib;};
+  desktopProfile = "gnome";
 in
   mkLinuxHost {
     inherit inputs frostflakeRoot frostflakeUser;
     hostName = "aurora";
-    desktopProfile = "cosmic";
+    inherit desktopProfile;
     homeModule = import ../../home/jager/linux/default.nix;
     extraModules = [
       ../../modules/system/docker.nix
@@ -61,20 +62,30 @@ in
       ];
 
       # Allow plain password auth during initial bring-up; keep WebAuthn tooling installed without PAM enforcement.
-      security.pam.services = {
-        login.u2fAuth = lib.mkForce false;
-        sddm.u2fAuth = lib.mkForce false;
-        "sddm-autologin".u2fAuth = lib.mkForce false;
-        # Enable fingerprint auth for login, sudo, and SDDM.
-        login.fprintAuth = true;
-        sudo.fprintAuth = true;
-        sddm.fprintAuth = true;
-        "sddm-autologin".fprintAuth = lib.mkForce false;
-        gdm-password.fprintAuth = true;
-        lightdm.fprintAuth = true;
-        "cosmic-greeter".fprintAuth = true;
-        "polkit-1".fprintAuth = true;
-      };
+      security.pam.services = lib.mkMerge [
+        {
+          login.u2fAuth = lib.mkForce false;
+          # Enable fingerprint auth for login, sudo, and polkit.
+          login.fprintAuth = lib.mkForce true;
+          sudo.fprintAuth = true;
+          "polkit-1".fprintAuth = true;
+        }
+        (lib.mkIf (desktopProfile == "gnome") {
+          "gdm-password".fprintAuth = true;
+        })
+        (lib.mkIf (desktopProfile == "kde") {
+          sddm.u2fAuth = lib.mkForce false;
+          sddm.fprintAuth = true;
+          "sddm-autologin".u2fAuth = lib.mkForce false;
+          "sddm-autologin".fprintAuth = lib.mkForce false;
+        })
+        (lib.mkIf (desktopProfile == "xfce") {
+          lightdm.fprintAuth = true;
+        })
+        (lib.mkIf (desktopProfile == "cosmic") {
+          "cosmic-greeter".fprintAuth = true;
+        })
+      ];
 
       frostflake = {
         security.webauthn = {
