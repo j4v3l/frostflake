@@ -192,7 +192,7 @@ in {
       console = {
         keyMap = mkDefault "us";
         font = mkDefault "ter-116n";
-        packages = [pkgs.terminus-nerdfont];
+        packages = [pkgs.nerd-fonts.terminess-ttf];
       };
 
       networking.networkmanager.enable = true;
