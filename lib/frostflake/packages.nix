@@ -47,6 +47,7 @@
       wget
       lazygit
       tmux
+      lazydocker
     ]
     ++ nordvpnPkg;
 
