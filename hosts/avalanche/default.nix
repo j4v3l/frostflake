@@ -7,6 +7,7 @@
   ...
 }: let
   mkLinuxHost = import (frostflakeRoot + "/lib/frostflake/mk-linux-host.nix") {inherit lib;};
+  jagerPublicKey = import ../common/jager-public-key.nix;
 in
   mkLinuxHost {
     inherit inputs frostflakeRoot frostflakeUser;
@@ -70,9 +71,9 @@ in
       # Container and VM definitions now live in ./containers.nix and ./virtual-machines.nix
 
       users = {
-        groups.plugdev.members = ["jager"];
-        users.jager.openssh.authorizedKeys.keys = [
-          "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHCsQ4NNDuuAj/NLrC9yXVoGRNU5DRTEqC2ybN+Y9Qjf jager@Javels-MacBook-Pro.local"
+        groups.plugdev.members = [frostflakeUser.username];
+        users.${frostflakeUser.username}.openssh.authorizedKeys.keys = [
+          jagerPublicKey
         ];
       };
 

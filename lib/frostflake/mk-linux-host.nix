@@ -33,7 +33,9 @@
       inputs."home-manager".nixosModules."home-manager"
       inputs."sops-nix".nixosModules.sops
     ]
-    ++ optional hidpiEnable inputs.nixos-hardware.nixosModules.common-hidpi;
+    ++ optional hidpiEnable inputs.nixos-hardware.nixosModules.common-hidpi
+    ++ optional (inputs ? microvm) inputs.microvm.nixosModules.host
+    ++ optional (inputs ? microvm) (frostflakeRoot + "/modules/system/microvm-defaults.nix");
   baseConfig = {
     networking.hostName = hostName;
 
