@@ -28,6 +28,7 @@
     [
       age
       bat
+      codex
       direnv
       eza
       nh
