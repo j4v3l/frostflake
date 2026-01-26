@@ -307,6 +307,14 @@ in {
         push.autoSetupRemote = true;
       };
     };
+    atuin = {
+      enable = true;
+      enableZshIntegration = true;
+      settings = {
+        sync_address = "http://192.168.0.118:8812";
+        sync_frequency = "5m";
+      };
+    };
     starship.enable = true;
     fastfetch = {
       enable = true;
